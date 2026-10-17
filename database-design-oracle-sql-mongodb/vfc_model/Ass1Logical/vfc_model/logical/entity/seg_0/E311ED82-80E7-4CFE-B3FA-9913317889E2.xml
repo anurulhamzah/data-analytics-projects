@@ -1,0 +1,205 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="E311ED82-80E7-4CFE-B3FA-9913317889E2" name="Class">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="class_id" id="56D6C486-20D2-D0A0-0798-D769A8D3BCFF">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:53:21 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class unique identity across VFC]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_no" id="757E4E57-9D3A-6C58-E017-BDB2A36127CF">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:43:35 UTC</createdTime>
+<commentInRDBMS><![CDATA[Number of class]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fac_id" id="E38BE0A2-A2D0-DCAC-F2F8-A784183577E7">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:50:16 UTC</createdTime>
+<commentInRDBMS><![CDATA[Facility unique identity across VFC]]></commentInRDBMS>
+<generatorID>F7A4901A-2FE3-602C-87A1-D50D13336282</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>B9B0FF20-C0CC-94CE-96E5-2C91C4FCE4DE</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="type_class_id" id="41E46265-A096-3A9B-E5CD-E6503F01574F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:55:59 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class type unique identity]]></commentInRDBMS>
+<generatorID>7D69028C-803B-3251-CCF8-1337C2E5EC35</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>F888779A-6BC0-E092-9177-596E6F8B21FB</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_desc" id="AB3BF47C-53B2-C6ED-8AA3-8CC1B4A2F696">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:44:32 UTC</createdTime>
+<commentInRDBMS><![CDATA[What is the class about]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_start_datetime" id="B9AFA48D-130E-BA94-D895-8E2C7016941A">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:45:58 UTC</createdTime>
+<commentInRDBMS><![CDATA[Date of the class start]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_max_participant" id="B24DE437-87AF-3BBB-1461-0C7A2D5D3CD4">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:47:13 UTC</createdTime>
+<commentInRDBMS><![CDATA[maximum participant of the class]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_number_of_session" id="C488D295-2AD6-6F23-0BE2-B6A801C9B190">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:49:16 UTC</createdTime>
+<commentInRDBMS><![CDATA[session quantity]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_cost" id="2ABFE8E7-A0AF-4157-B1D6-B63BF480FA59">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:52:30 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class price]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>10</dataTypePrecision>
+<ownDataTypeParameters>,10,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_duration" id="96F49823-FF24-8006-617A-C78DB5FE3ECF">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:59:34 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class Duration time per session]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="gender" id="31081AF8-90AA-F914-4055-0C3F05F0092B">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 13:00:24 UTC</createdTime>
+<commentInRDBMS><![CDATA[class gender type]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10</dataTypeSize>
+<ownDataTypeParameters>10,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="557C7DC5-690F-BC64-164A-1BD3A2A23312" name="Class PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<newElementsIDs>56D6C486-20D2-D0A0-0798-D769A8D3BCFF</newElementsIDs>
+<usedAttributes>
+<attributeRef>56D6C486-20D2-D0A0-0798-D769A8D3BCFF</attributeRef>
+</usedAttributes>
+</identifier>
+<identifier id="C7562736-EE05-8FAA-C696-147A456009B7" name="Class NK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:48:32 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<newElementsIDs>757E4E57-9D3A-6C58-E017-BDB2A36127CF,F7A4901A-2FE3-602C-87A1-D50D13336282,E38BE0A2-A2D0-DCAC-F2F8-A784183577E7</newElementsIDs>
+<usedAttributes>
+<attributeRef>757E4E57-9D3A-6C58-E017-BDB2A36127CF</attributeRef>
+<attributeRef>E38BE0A2-A2D0-DCAC-F2F8-A784183577E7</attributeRef>
+<attributeRef>E38BE0A2-A2D0-DCAC-F2F8-A784183577E7</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

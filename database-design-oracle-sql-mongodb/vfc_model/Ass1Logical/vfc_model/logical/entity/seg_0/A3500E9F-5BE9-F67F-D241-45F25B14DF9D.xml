@@ -1,0 +1,165 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="A3500E9F-5BE9-F67F-D241-45F25B14DF9D" name="FitnessAssesment">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:46:11 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="fa_id" id="3FE442F4-6FD5-A404-B285-E0AA4BAD2566">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:28:13 UTC</createdTime>
+<commentInRDBMS><![CDATA[Assessement unique id]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_id" id="BE645676-FD2B-1029-94BD-D92109F01D65">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 09:38:12 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff unique Identity]]></commentInRDBMS>
+<generatorID>2EBFBBAA-3F94-1B78-4981-9EB785924063</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>E6B38C24-8E96-1256-CF6E-0116FB5A9733</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_id" id="BE025CC2-88C6-0B6C-6207-DDBE29326BDF">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 12:36:19 UTC</createdTime>
+<commentInRDBMS><![CDATA[Unique identity for member]]></commentInRDBMS>
+<generatorID>59FFAFCB-E09E-732D-253A-1B792F7A54CA</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>DF3FE909-F402-E41E-C2C8-B285054B0208</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fa_date" id="0AB4D83A-521B-E678-6AAF-4B19C367322E">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 13:42:26 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fa_blood_pressure" id="D8A99F44-F827-F3F5-484E-8AD6EF20272D">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:28:50 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member blood pressure records]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>7</dataTypeSize>
+<ownDataTypeParameters>7,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fa_bmi" id="A35296F1-D86F-02CD-8029-8B096BFF1043">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:31:33 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member BMI (Body Mass Index) Records]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<dataTypeScale>2</dataTypeScale>
+<ownDataTypeParameters>,3,2</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fa_vo2_max" id="CD379FB8-06F6-46B2-AF95-2A83974C462B">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:37:51 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member VO2 Max Records]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<dataTypeScale>3</dataTypeScale>
+<ownDataTypeParameters>,3,3</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fa_weight" id="E6E5A6E7-AFD7-E6EF-FA6E-11312635BCDE">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:41:40 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member Weight Records]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<dataTypeScale>2</dataTypeScale>
+<ownDataTypeParameters>,3,2</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="19A84CBF-CBA5-343F-12C7-90D0764D174F" name="FitnessAssesment PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:28:45 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<newElementsIDs>3FE442F4-6FD5-A404-B285-E0AA4BAD2566,BE025CC2-88C6-0B6C-6207-DDBE29326BDF</newElementsIDs>
+<usedAttributes>
+<attributeRef>3FE442F4-6FD5-A404-B285-E0AA4BAD2566</attributeRef>
+<attributeRef>BE025CC2-88C6-0B6C-6207-DDBE29326BDF</attributeRef>
+</usedAttributes>
+</identifier>
+<identifier id="F8CE2619-B9CE-7A94-F13C-6586B36C5C2B" name="FitnessAssesment NK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<newElementsIDs>0AB4D83A-521B-E678-6AAF-4B19C367322E,59FFAFCB-E09E-732D-253A-1B792F7A54CA</newElementsIDs>
+<usedAttributes>
+<attributeRef>0AB4D83A-521B-E678-6AAF-4B19C367322E</attributeRef>
+<attributeRef>BE025CC2-88C6-0B6C-6207-DDBE29326BDF</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

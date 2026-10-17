@@ -1,0 +1,149 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="7B529DEE-06E8-4121-3CDC-7EA4F5A042CD" name="Member">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="member_id" id="DF3FE909-F402-E41E-C2C8-B285054B0208">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 05:00:44 UTC</createdTime>
+<commentInRDBMS><![CDATA[Unique identity for member]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_fname" id="60DA5A69-B024-158F-4420-32E073D6A2C7">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 05:02:05 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member first name]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_lname" id="1C76BFD1-DB93-ACE7-83C1-6ED5D50246BF">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 10:52:15 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member last name]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_address" id="570CD358-F43C-7CDE-AB04-E158B8F90391">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 10:53:15 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member street address]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_phone_no" id="F9BD981B-CCB4-B3E2-1412-0B23A7922099">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 05:03:48 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member phone number]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>15</dataTypeSize>
+<ownDataTypeParameters>15,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_join_date" id="860DB977-C4BC-C6A3-446F-7D77C5BD3F5C">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 10:58:19 UTC</createdTime>
+<commentInRDBMS><![CDATA[Member date of Join]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="referred_by" id="67F8EDE9-3332-9772-9045-B6527D8D2C66">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 12:27:06 UTC</createdTime>
+<commentInRDBMS><![CDATA[Unique identity for member]]></commentInRDBMS>
+<generatorID>7D3E20B8-C3B6-8516-5D53-E05E5121077E</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<referedAttribute>DF3FE909-F402-E41E-C2C8-B285054B0208</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_id" id="DCCB9995-8304-49FC-CEA1-5FE757117271">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 12:34:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre unique identity]]></commentInRDBMS>
+<generatorID>DE8F1472-425C-23DE-7072-586C0B680917</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>C8D79D51-6573-7990-E446-94FCA4C2BBBB</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="891E50C9-B6FE-2096-96B6-4434F5117AFF" name="Member PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>DF3FE909-F402-E41E-C2C8-B285054B0208</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

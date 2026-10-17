@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="Class_to_Attendance" directorySegmentName="seg_0" id="B78C53B4-831F-EDB1-6010-4AE38F7D6AD5">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 17:35:17 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<sourcePk>557C7DC5-690F-BC64-164A-1BD3A2A23312</sourcePk>
+<identifying>false</identifying>
+<nameOnSource>record</nameOnSource>
+<nameOnTarget> </nameOnTarget>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>E311ED82-80E7-4CFE-B3FA-9913317889E2</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>26C7B9E4-2C11-339E-2A53-98D9E1FD2787</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

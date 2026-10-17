@@ -1,0 +1,133 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="09938F52-30F9-DEEF-8589-10178366F5DE" name="Centre">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="centre_id" id="C8D79D51-6573-7990-E446-94FCA4C2BBBB">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 14:08:07 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre unique identity]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_name" id="E4AE179A-BF0E-80BF-6287-DCD697604E9A">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 14:09:53 UTC</createdTime>
+<commentInRDBMS><![CDATA[Name of the centre]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30 CHAR</dataTypeSize>
+<ownDataTypeParameters>30 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_street" id="4BC26BBA-D29C-35ED-0066-62A4717A737F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 14:10:54 UTC</createdTime>
+<commentInRDBMS><![CDATA[centre street address]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_town" id="EB485C05-D589-1085-EA38-1D72874217A0">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 11:03:56 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre town address]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>20</dataTypeSize>
+<ownDataTypeParameters>20,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_postcode" id="64D0E46C-9DC3-3BC6-DA4B-FB80E4CCF71D">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 11:03:57 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre address postcode]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10</dataTypeSize>
+<ownDataTypeParameters>10,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_phone_no" id="2057C8B8-9F63-7628-0B23-C3B03DD7B8A2">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 14:11:32 UTC</createdTime>
+<commentInRDBMS><![CDATA[Center contact number]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>15</dataTypeSize>
+<ownDataTypeParameters>15,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="manager_id" id="C8E7C3C2-EEA0-988B-D7AD-77708ACEF462">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 09:32:49 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff unique Identity]]></commentInRDBMS>
+<generatorID>E9E7D3C9-02C1-EA0E-5136-9E63A6F9FD82</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>E6B38C24-8E96-1256-CF6E-0116FB5A9733</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="ABF496ED-DFDE-3CAB-EBEC-47DAC65F11E7" name="Center PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>C8D79D51-6573-7990-E446-94FCA4C2BBBB</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

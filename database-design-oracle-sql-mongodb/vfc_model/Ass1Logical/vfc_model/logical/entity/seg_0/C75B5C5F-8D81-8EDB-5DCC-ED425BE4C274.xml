@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="C75B5C5F-8D81-8EDB-5DCC-ED425BE4C274" name="ClassStaffing">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:44:04 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="class_id" id="BA98C713-FAB7-FAB4-DE32-8A30DB36070D">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:53:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class unique identity across VFC]]></commentInRDBMS>
+<generatorID>E781BA3F-1D5B-00FF-18A4-C034272B6ABB</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>56D6C486-20D2-D0A0-0798-D769A8D3BCFF</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_id" id="684770C3-DAC7-C7B5-DC3B-87B8A9FE4B43">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:06:47 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff unique Identity]]></commentInRDBMS>
+<generatorID>28CE2918-F2FB-7DBF-B641-26CBD6E8D9C8</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>E6B38C24-8E96-1256-CF6E-0116FB5A9733</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_leader" id="45244F7E-4832-D45A-2DB4-AEC73A646A08">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:44:21 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT006</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="FB85600D-A810-BAF4-C8CF-FDEC42862DF8" name="ClassStaffing PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:45:58 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>BA98C713-FAB7-FAB4-DE32-8A30DB36070D</attributeRef>
+<attributeRef>684770C3-DAC7-C7B5-DC3B-87B8A9FE4B43</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

@@ -1,0 +1,787 @@
+---
+title: "Assignmen_3 rmd report"
+output: html_document
+date: "2025-09-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Data Preparation
+##### a. Load all required packages
+
+```{r Library}
+
+
+library(tidyverse) #Core suite for data manipulation and visualization
+library(readxl) #For reading Excel files
+library(reshape2) #For creating correlation matrix heatmaps
+library(slider) # For advanced feature engineering (rolling means)
+library(lme4) # For inferential modeling (Linear Mixed-Effects Models)
+library(lmerTest) # Provides p-values for lmer models
+library(mgcv) # For inferential modeling (Generalized Additive Models)
+library(tidymodels) # For predictive modeling (the tidymodels framework)
+library(ranger)     # A fast implementation of Random Forest, used as the engine
+library(vip)        # For variable importance plots
+library(nnet)       # For multinomial logistic regression (propensity scores)
+library(lmtest)     # For coeftest() to get robust standard errors
+library(sandwich)   # For vcovHC() to calculate robust covariance matrix
+library(grf)        # For Causal Forest models
+```
+
+##### b. Load data
+```{r Load}
+
+# Load the data from the specified file.
+raw_agriclimate_data <- read_excel("Climate_Agri_Dataset.xlsx")
+
+# Display the structure of the raw data to understand its columns and types.
+str(raw_agriclimate_data)
+```
+##### c. Data Cleaning
+
+```{r cleaning}
+# First, generate descriptive statistics to spot initial problems.
+summary(raw_agriclimate_data)
+
+```
+The summary reveals **negative values** for 'Pesticide_KG_HA' and 'Fertilizer_KG_HA', which are physically impossible and **indicate data errors**.
+
+###### Incorrect Data
+```{r count negative}
+#Count the number of rows with these impossible negative values.
+negative_value_counts <- raw_agriclimate_data %>%
+  summarise(
+    neg_pesticide_count = sum(Pesticide_KG_HA < 0, na.rm = TRUE),
+    neg_fertilizer_count = sum(Fertilizer_KG_HA < 0, na.rm = TRUE)
+  )
+print(negative_value_counts)
+```
+RATIONALE for removal: The number of affected rows (17) is a very small fraction (~0.19%) of the total dataset. Removing them is a safe and conservative approach that cleans the data without significantly impacting statistical power. 
+
+
+```{r cleaning negative}
+#Delete these values
+agriclimate_data_clean <- raw_agriclimate_data %>%
+  filter(Pesticide_KG_HA >= 0, Fertilizer_KG_HA >= 0)
+
+#Verify that the negative values have been successfully removed.
+agriclimate_data_clean %>%
+  summarise(
+    neg_pesticide_count = sum(Pesticide_KG_HA < 0, na.rm = TRUE),
+    neg_fertilizer_count = sum(Fertilizer_KG_HA < 0, na.rm = TRUE)
+  )
+```
+
+###### Duplicates
+```{r cleaning Duplicate}
+#Check for and count complete duplicate rows.
+
+#Duplicate rows can artificially inflate the influence of certain data points.
+num_duplicate_rows <- agriclimate_data_clean %>%
+  duplicated() %>%
+  sum()
+cat("Number of duplicate rows found:", num_duplicate_rows, "\n")
+
+```
+RESULT: no duplicates found, which is good.
+
+
+###### Missing value
+```{r cleaning Duplicate}
+# Check for missing values (NA) in each column.
+colSums(is.na(agriclimate_data_clean))
+
+```
+There are no missing value
+
+
+```{r check outlier}
+
+#Check for outliers in numeric columns using the Z-score method.
+outlier_counts_z3 <- agriclimate_data_clean %>%
+  select(where(is.numeric)) %>%
+  
+  #The scale() function calculates the Z-score for each value.
+  mutate(across(everything(), ~ abs(scale(.)))) %>%
+  
+  # Count how many observations in each column have a Z-score > 3.
+  summarise(across(everything(), ~ sum(. > 3, na.rm = TRUE)))
+print(outlier_counts_z3)
+
+```
+No outliers detected based on this criterion.
+
+###### Group Country by climate zones
+
+Create a new 'Climate_Zone' column to group countries. This is a form of feature engineering based on domain knowledge. It reduces the cardinality of the 'Country' variable into a more manageable and potentially more informative feature for modeling.
+```{r check create climate zone}
+
+# Create a mapping table (lookup table).
+country_to_climate_zone_map <- data.frame(
+  Country = c("India", "China", "France", "Canada", "USA",
+              "Argentina", "Australia", "Nigeria", "Russia", "Brazil"),
+  Climate_Zone = c("Tropical", "Subtropical", "Temperate", "Temperate",
+                   "Subtropical", "Subtropical", "Subtropical", "Tropical",
+                   "Temperate", "Tropical")
+)
+
+# Join this mapping table with our main dataset.
+agriclimate_data_clean <- agriclimate_data_clean %>%
+  left_join(country_to_climate_zone_map, by = "Country")
+
+# Check the first few rows to ensure the new column was added correctly.
+head(agriclimate_data_clean)
+```
+
+#### EDA
+
+##### a. Data Structure
+```{r glimps}
+# Check data structure
+glimpse(agriclimate_data_clean)
+```
+
+##### b.Descriptive statistics
+```{r summary}
+summary(agriclimate_data_clean)
+```
+
+
+###### c. Temperature Anomaly Analysis
+
+```{r Temperature Anomaly}
+
+#We calculate yearly averages, year-over-year changes, and anomalies.
+temp_summary <- agriclimate_data_clean %>%
+  #Calculate the average temperature for each year and climate zone
+  group_by(Year, Climate_Zone) %>%
+  summarise(Avg_Temp = mean(Temp_C, na.rm = TRUE), .groups = "drop") %>%
+  
+  #Arrange by zone and year to ensure calculations are done in the correct order
+  arrange(Climate_Zone, Year) %>%
+  
+  #Group by climate zone to calculate changes and anomalies within each zone
+  group_by(Climate_Zone) %>%
+  mutate(
+    #Calculate year-over-year change
+    Change_from_Last_Year = Avg_Temp - lag(Avg_Temp),
+    
+    #Calculate the baseline temperature (1990-2024 average) for the zone
+    Baseline_Temp = mean(Avg_Temp, na.rm = TRUE),
+    
+    #Calculate the anomaly from the baseline
+    Temp_Anomaly = Avg_Temp - Baseline_Temp,
+    
+    #Create a category for coloring the anomaly bars
+    Anomaly_Type = ifelse(Temp_Anomaly > 0, "Warmer than Average", "Cooler than Average")
+  ) %>%
+  ungroup() # Ungroup for general use
+
+#Global Temperature Trend Analysis ---
+
+#Create a global summary
+global_temp_trend <- temp_summary %>%
+  group_by(Year) %>%
+  summarise(
+    Avg_Temp = mean(Avg_Temp, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(Change_from_Last_Year = Avg_Temp - lag(Avg_Temp))
+
+#Plot 1. Global Average Temperature and Yearly Change (with Trendline)
+ggplot(global_temp_trend, aes(x = Year, y = Avg_Temp)) +
+  geom_line(color = "steelblue", linewidth = 1.2) +
+  geom_point(aes(color = Change_from_Last_Year), size = 3) +
+  
+  #Creates a smoothed trendline to show the long-term pattern
+  geom_smooth(method = "loess", se = FALSE, color = "black", linetype = "dashed", linewidth = 1) +
+  
+  scale_color_gradient2(low = "blue", mid = "grey80", high = "red", midpoint = 0) +
+  theme_minimal() +
+  labs(
+    title = "Global Average Temperature and Yearly Change with Trendline",
+    subtitle = "Dashed line shows the smoothed long-term warming trend",
+    x = "Year",
+    y = "Average Temperature (°C)",
+    color = "Yearly Change (°C)"
+  )
+
+#Zoned Temperature Change Analysis
+#Plot 2. Yearly Change by Climate Zone
+ggplot(temp_summary %>% filter(!is.na(Change_from_Last_Year)),
+       aes(x = Year, y = Change_from_Last_Year)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_line(color = "steelblue", linewidth = 1.1) +
+  geom_point(color = "darkred", size = 1.5) +
+  facet_wrap(~ Climate_Zone, ncol = 1, scales = "fixed") +
+  labs(
+    title = "Yearly Change in Average Temperature by Climate Zone",
+    x = "Year",
+    y = "Change in Temperature vs. Previous Year (°C)"
+  ) +
+  theme_gray()
+
+# Plot 3: Historical Temperature Anomalies
+ggplot(temp_summary, aes(x = Year, y = Temp_Anomaly, fill = Anomaly_Type)) +
+  geom_col(width = 0.8) +
+  geom_smooth(aes(group = 1), method = "loess", se = FALSE, color = "black", linewidth = 1.2) +
+  geom_hline(yintercept = 0, color = "black") +
+  scale_fill_manual(values = c("Warmer than Average" = "firebrick", "Cooler than Average" = "steelblue")) +
+  facet_wrap(~ Climate_Zone, ncol = 1, scales = "fixed") +
+  theme_minimal(base_size = 14) +
+  theme(
+    strip.text = element_text( size = 16),
+    plot.title = element_text( size = 15),
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ) +
+  labs(
+    title = "Historical Temperature Anomalies Trend per Zone",
+    x = "Year",
+    y = "Temperature Anomaly (°C)"
+  )
+```
+
+
+###### d. Correlation Heatmaap
+
+A correlation heatmap provides a quick visual summary of the linear relationships between all numeric variables. It helps identify potential predictors and multicollinearity issues.
+
+```{r correlation}
+
+#Correlation Heatmap of Numeric Variables
+
+#Select only the numeric columns for the correlation calculation.
+numeric_data <- agriclimate_data_clean %>%
+  select(where(is.numeric))
+
+#Compute the correlation matrix.
+correlation_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
+
+#Reshape the matrix into a long format suitable for ggplot2.
+melted_correlation_matrix <- melt(correlation_matrix)
+
+#Plot the heatmap.
+ggplot(melted_correlation_matrix, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white", width = 0.95, height = 0.95) +
+  scale_fill_gradient2(
+    low = "red", high = "blue", mid = "white",
+    midpoint = 0, limit = c(-1, 1),
+    name = "Correlation"
+  ) +
+  #Add the correlation values as text on the tiles.
+  geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 2) +
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 8)
+  ) +
+  coord_fixed() + # Ensures tiles are square
+  labs(
+    title = "Correlation Heatmap of Numeric Variables",
+    x = "", y = ""
+  )
+
+```
+
+**KEY INSIGHT**: Strong positive correlation between Fertilizer/Yield (0.73) and Yield/Economic Impact (0.73). Very weak linear correlation between climate variables (Temp, Precip) and Yield. This suggests the relationship might be non-linear, justifying the use of a GAM later.
+
+
+
+#### Advance Analysis
+
+###### a. Advance Feature Engineering
+
+Create new features to capture temporal dynamics and interaction effects.This can significantly improve model performance by providing more information.
+
+```{r Feature Engineering}
+#ADVANCED FEATURE ENGINEERING
+
+
+#Clean column names to a consistent snake_case format for easier use.
+agriclimate_data_clean <- agriclimate_data_clean %>% janitor::clean_names()
+
+agriclimate_data_featured <- agriclimate_data_clean %>%
+  #Group by each unique time series (a specific crop in a specific region).
+  group_by(country, region, crop) %>%
+  #Ensure data is sorted by year within each group before creating lags/rolls.
+  arrange(year,.by_group = TRUE) %>%
+  mutate(
+    # --- Temporal Features ---
+    #Lagged variables capture the influence of the previous year's conditions.
+    temp_c_lag1 = lag(temp_c, 1),
+    precip_mm_lag1 = lag(precip_mm, 1),
+    co2_mt_lag1 = lag(co2_mt, 1),
+
+    #Rolling means smooth out short-term fluctuations to capture the medium-term trend.
+    #Here, we use a 3-year moving average (current year + 2 previous years).
+    temp_c_ma3 = slide_dbl(temp_c, mean,.before = 2,.complete = TRUE, na.rm = TRUE),
+    precip_mm_ma3 = slide_dbl(precip_mm, mean,.before = 2,.complete = TRUE, na.rm = TRUE),
+    co2_mt_ma3 = slide_dbl(co2_mt, mean,.before = 2,.complete = TRUE, na.rm = TRUE)
+  ) %>%
+  ungroup() %>% # Ungroup to apply the next mutations to the whole dataset.
+  mutate(
+    # --- Interaction Features ---
+    #These terms test the hypothesis that the combined effect of two variables
+    #is different from the sum of their individual effects.
+    temp_precip_interaction = temp_c * precip_mm,
+    temp_co2_interaction = temp_c * co2_mt
+  )
+```
+
+###### b. Data Scaling
+
+Standardize numeric predictors to have a mean of 0 and standard deviation of 1.This is important for some models and helps in comparing the magnitude of coefficients from linear models.
+
+Note: We scale the outcomes as well, which means model coefficients will be interpreted in terms of standard deviation units.
+```{r Data Scaling}
+# --- Data Scaling ---
+
+agriclimate_data_scaled <- agriclimate_data_featured %>%
+  mutate(across(
+    c(temp_c, precip_mm, co2_mt, irrigation, pesticide_kg_ha,
+      fertilizer_kg_ha, soil_index, temp_precip_interaction, temp_co2_interaction,
+      yield_mt_ha, econ_impact_usd_million),
+    scale
+  ))
+```
+
+##### c. Explanatory Modeling (Inference)
+The goal here is to understand the structural relationships between variables.
+
+###### c.1. Linear Mixed-Effects (LME) Models
+
+RATIONALE: LME models are used because the data is hierarchical (observations are nested within crops, regions, and countries). Ignoring this structure would violate the independence assumption of standard regression and could lead to incorrect standard errors and p-values. LMEs account for this by fitting 'random effects' for the grouping variables.
+
+####### Fit the LME model for crop yield
+```{r Explanatory Modeling}
+#--- Linear Mixed-Effects (LME) Models ---
+
+# Filter out any rows with NA values that were created by the lag/roll features, the model for yield requires the scaled 'yield_mt_ha' to not be NA.
+modeling_data_yield <- agriclimate_data_scaled %>% filter(!is.na(yield_mt_ha))
+
+
+# FORMULA:
+# - Fixed effects: temp_c, precip_mm, etc. These are the main predictors.
+# - Random effects: (1 | country/region) + (1 | crop). This specifies random
+#   intercepts for each crop, and for each region nested within a country.
+#   This allows the baseline yield to vary by crop and by region.
+
+# Fit the LME model for crop yield.
+lme_yield_model <- lmer(
+  yield_mt_ha ~ temp_c + precip_mm + co2_mt +
+    irrigation + pesticide_kg_ha + fertilizer_kg_ha + soil_index +
+    temp_precip_interaction + temp_co2_interaction +
+    (1 | country/region) + (1 | crop),
+  data = modeling_data_yield,
+  REML = FALSE # Use ML for model comparison purposes
+)
+summary(lme_yield_model)
+```
+
+####### Fit the LME model for economic impact
+```{r Explanatory Modeling}
+# Fit the LME model for economic impact.
+modeling_data_econ <- agriclimate_data_scaled %>% filter(!is.na(econ_impact_usd_million))
+lme_econ_model <- lmer(
+  econ_impact_usd_million ~ temp_c + precip_mm + co2_mt +
+    irrigation + pesticide_kg_ha + fertilizer_kg_ha + soil_index +
+    temp_precip_interaction + temp_co2_interaction +
+    (1 | country/region) + (1 | crop),
+  data = modeling_data_econ,
+  REML = FALSE
+)
+summary(lme_econ_model)
+```
+
+##### c.2 Generalized Additive Models
+
+RATIONALE: GAMs extend linear models by allowing non-linear relationships between predictors and the outcome. This is useful because the EDA suggested that the effect of climate variables on yield might not be linear. GAMs fit flexible 'smooth functions' (splines) to capture these curves automatically
+
+```{r GAM}
+#--- Generalized Additive Models (GAMs) ---
+
+# This model includes all relevant predictors as smooth terms and will be used for visualization.
+# This assumes 'agriclimate_data_clean' has been processed with janitor::clean_names()
+gam_yield_model <- gam(
+  yield_mt_ha ~ s(temp_c) + s(precip_mm) + s(co2_mt) +
+    s(pesticide_kg_ha) + s(fertilizer_kg_ha) + s(irrigation) + s(soil_index),
+  data = agriclimate_data_clean,
+  method = "REML"
+)
+
+summary(gam_yield_model)
+
+# --- Plotting the GAM results ---
+# The plot() function for GAM objects is excellent for visualizing the smooth terms.
+# The y-axis represents the partial effect of the variable on the outcome.
+# The curve shows the relationship, and the shaded area is the 95% confidence interval.
+
+# Set plotting parameters to show a 3x2 grid of plots
+par(mfrow = c(3, 2), mar = c(4, 4, 3, 1))
+
+# Plot the partial effect for Temperature
+plot(gam_yield_model, select = 1, shade = TRUE, shade.col = "lightblue",
+     main = "Effect of Temperature",
+     xlab = "Temperature (°C)", ylab = "Effect on Yield")
+
+# Plot the partial effect for Fertilizer
+plot(gam_yield_model, select = 5, shade = TRUE, shade.col = "lightgreen",
+     main = "Effect of Fertilizer",
+     xlab = "Fertilizer (KG/HA)", ylab = "Effect on Yield")
+
+# Plot the partial effect for Pesticide
+plot(gam_yield_model, select = 4, shade = TRUE, shade.col = "lightcoral",
+     main = "Effect of Pesticide",
+     xlab = "Pesticide (KG/HA)", ylab = "Effect on Yield")
+
+# Plot the partial effect for CO2
+plot(gam_yield_model, select = 3, shade = TRUE, shade.col = "lightgoldenrod",
+     main = "Effect of CO2",
+     xlab = "CO2 (MT)", ylab = "Effect on Yield")
+
+# Plot the partial effect for Irrigation
+plot(gam_yield_model, select = 6, shade = TRUE, shade.col = "lightpink",
+     main = "Effect of Irrigation",
+     xlab = "Irrigation", ylab = "Effect on Yield")
+
+# Plot the partial effect for Soil Index
+plot(gam_yield_model, select = 7, shade = TRUE, shade.col = "lightcyan",
+     main = "Effect of Soil Index",
+     xlab = "Soil Index", ylab = "Effect on Yield")
+
+# Reset plotting parameters to default
+par(mfrow = c(1, 1))
+
+```
+
+INTERPRETATION: Look at the 'Approximate significance of smooth terms' table. The 'edf' (effective degrees of freedom) indicates non-linearity.
+- edf = 1: The relationship is linear.
+- edf > 1: The relationship is non-linear. The higher the edf, the more complex the curve.
+
+The p-value indicates if the smooth term is statistically significant.
+
+
+
+##### d. Predictive Modeling (Random Forest)
+
+The goal here is to build a model that accurately predicts crop yield.We use the 'tidymodels' framework for a structured and reproducible workflow.
+
+###### **Split data**
+
+It's crucial to split the data into a training set (to build the model) and a test set (to evaluate its performance on unseen data). This separation provides an unbiased estimate of the model's real-world performance.An 80/20 split is a common and effective choice.
+```{r RF Split}
+
+#--- Data Splitting ---
+
+set.seed(123) # Set a seed for reproducibility of the random split.
+
+#Use the unscaled 'agriclimate_data_featured' data frame for the split.
+data_split <- initial_split(agriclimate_data_featured, prop = 0.8, strata = yield_mt_ha)
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+```
+
+###### **Preprosesing**
+
+A 'recipe' defines the steps to prepare the data for modeling. This ensures that the same preprocessing steps are applied consistently to the training, test, and any new data in the future, preventing data leakage.
+
+```{r RF preprosesing}
+#--- Preprocessing with a 'recipe' ---
+yield_prediction_recipe <- recipe(yield_mt_ha ~., data = train_data) %>%
+  
+  # Define roles: 'econ_impact_usd_million' is another outcome, not a predictor for yield. 'country', 'region', and 'crop' are identifiers we won't use as predictors in this specific model, so we assign them the role of "ID".
+  update_role(country, region, crop, econ_impact_usd_million, new_role = "ID") %>%
+  
+  # Impute any missing values in numeric predictors with the column mean. This is a simple but effective way in case it is needed to handle missing data.
+  step_impute_mean(all_numeric_predictors()) %>%
+  
+  # Normalize (center and scale) all numeric predictors. This brings all predictors to a common scale, which is good practice for many models.
+  step_normalize(all_numeric_predictors())
+```
+
+###### **Model Specification**
+Specify the Random Forest model using the 'parsnip' package. We will tune the 'mtry' and 'min_n' hyperparameters to find their optimal values.
+```{r RF specification}
+#--- Model Specification and Workflow ---
+
+rf_model_spec <- rand_forest(
+  mtry = tune(),  # Number of predictors to sample at each split
+  min_n = tune(), # Minimum number of data points in a node to be split
+  trees = 500     # A reasonable number of trees for the forest
+) %>%
+  
+  #Use the fast 'ranger' engine and specify that we want to calculate variable importance based on impurity reduction.
+  set_engine("ranger", importance = "impurity") %>%
+  
+  # This is a regression problem because we are predicting a numeric value.
+  set_mode("regression")
+
+# Combine the recipe and model specification into a single 'workflow' object. This bundles the entire modeling process together for easy use.
+rf_workflow <- workflow() %>%
+  add_recipe(yield_prediction_recipe) %>%
+  add_model(rf_model_spec)
+```
+
+###### **Parameter tuning**
+We use cross-validation to find the best values for 'mtry' and 'min_n'. The training data is split into 5 "folds". The model is trained on 4 folds and validated on the 5th, rotating through all folds. This gives a more robust estimate of performance than a single validation split.
+
+```{r RF parameter tuning}
+#--- Hyperparameter Tuning ---
+set.seed(123)
+cv_folds <- vfold_cv(train_data, v = 5)
+
+# Create a grid of hyperparameter values to test. 
+# Use the modern 'grid_space_filling()' function.
+rf_tuning_grid <- grid_space_filling(
+  mtry(range = c(2, 8)),  # Test mtry values between 2 and 8
+  min_n(range = c(5, 20)), # Test min_n values between 5 and 20
+  size = 26
+)
+
+# Run the tuning process. This will fit the model on the cross-validation folds for each combination of hyperparameters in the grid.
+rf_tuned_results <- tune_grid(
+  rf_workflow,
+  resamples = cv_folds,
+  grid = rf_tuning_grid,
+  metrics = metric_set(rmse, rsq, mae) # Evaluate using these three metrics
+)
+
+# Select the best hyperparameter combination based on the lowest RMSE.
+best_rf_params <- select_best(rf_tuned_results, metric = "rmse")
+
+# Print the results to see the best parameters
+print(best_rf_params)
+
+# Finalize the workflow by updating it with the best parameters we found.
+final_rf_workflow <- finalize_workflow(rf_workflow, best_rf_params)
+```
+
+###### **Evaluation**
+```{r RF evaluation}
+
+#--- Final Model Training and Evaluation ---
+# Train the final, tuned model on the *entire* training dataset.
+final_rf_fit <- fit(final_rf_workflow, data = train_data)
+
+# Make predictions on the held-out test data.
+rf_test_predictions <- predict(final_rf_fit, test_data) %>%
+  # Bind the predictions with the true values for easy evaluation.
+  bind_cols(test_data %>% select(yield_mt_ha))
+
+# Evaluate the final model's performance on the test set.
+final_performance_metrics <- metrics(rf_test_predictions, truth = yield_mt_ha, estimate =.pred)
+print("Final Model Performance on Test Set:")
+print(final_performance_metrics)
+
+# Generate and display the variable importance plot.
+# This shows which predictors were most influential in the model's predictions.
+final_rf_fit %>%
+  extract_fit_parsnip() %>%
+  vip(geom = "col", aesthetics = list(fill = "steelblue", alpha = 0.8)) +
+  theme_minimal() +
+  labs(title = "Random Forest Feature Importance")
+```
+
+
+
+###### **Actual Vs Predicted**
+```{r RF Act vs Pred}
+
+# Create the scatterplot of actual vs. predicted values
+ggplot(rf_test_predictions, aes(x = yield_mt_ha, y =.pred)) +
+  # Plot the points with some transparency to handle overplotting
+  geom_point(alpha = 0.5, color = "steelblue") +
+  
+  # Add a 45-degree reference line representing a perfect prediction
+  geom_abline(linetype = "dashed", color = "red", linewidth = 1) +
+  
+  # Use a clean theme
+  theme_minimal(base_size = 14) +
+  
+  # Add informative labels
+  labs(
+    title = "Actual vs. Predicted Crop Yield",
+    subtitle = "Random Forest Model Performance on Test Set",
+    x = "Actual Yield (MT/HA)",
+    y = "Predicted Yield (MT/HA)"
+  ) +
+  
+  # Ensure the plot axes are scaled equally for a true 45-degree line view
+  coord_fixed(
+    ratio = 1, 
+    xlim = range(rf_test_predictions$yield_mt_ha), 
+    ylim = range(rf_test_predictions$yield_mt_ha)
+  )
+```
+
+###### **Actual Vs Predicted**
+
+```{r residual vs predicted}
+
+# First, we need to calculate the residuals and add them to our predictions data frame
+rf_test_predictions_with_residuals <- rf_test_predictions %>%
+  mutate(residuals = yield_mt_ha -.pred)
+
+# Create the residual plot
+ggplot(rf_test_predictions_with_residuals, aes(x =.pred, y = residuals)) +
+  # Plot the residual points
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  
+  # Add a horizontal line at y=0 for reference (zero error)
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 1) +
+  
+  # Use a clean theme
+  theme_minimal(base_size = 14) +
+  
+  # Add informative labels
+  labs(
+    title = "Residuals vs. Predicted Values",
+    subtitle = "Checking for Patterns in Model Errors",
+    x = "Predicted Yield (MT/HA)",
+    y = "Residuals (Actual - Predicted)"
+  )
+```
+
+
+#### e. Prrescriptive Analysis
+
+This section moves beyond prediction to ask "what should we do?". 
+It aims to estimate the causal effect of different adaptation strategies.
+
+###### e.1. Propensity Score Weighting (for Average Treatment Effects)
+
+RATIONALE: In observational data, farmers are not randomly assigned to adaptation strategies. This can lead to confounding bias. Propensity Score Weighting (PSW) attempts to mimic a randomized experiment by weighting each observation by the inverse of its probability of receiving the treatment it actually received. This balances the covariates across treatment groups, allowing for a less biased estimate of the Average Treatment Effect (ATE).
+
+
+
+```{r}
+#--- Propensity Score Weighting (for Average Treatment Effects) ---
+
+# First, ensure all categorical variables are factors. This is the key fix.
+agriclimate_data_featured <- agriclimate_data_featured %>%
+  mutate(across(c(adaptation, crop, country, region), as.factor))
+
+# Now, check the distribution of the adaptation strategies.
+table(agriclimate_data_featured$adaptation)
+
+# Model the propensity scores.
+# We use a multinomial logistic regression to predict the 'adaptation' strategy
+# based on a rich set of covariates that might influence the choice of strategy.
+propensity_score_model <- nnet::multinom(
+  adaptation ~ temp_c + precip_mm + co2_mt + irrigation + pesticide_kg_ha +
+    fertilizer_kg_ha + soil_index + crop + country + region + year,
+  data = agriclimate_data_featured,
+  trace = FALSE # Suppress verbose output during fitting
+)
+
+# Calculate the propensity scores (predicted probabilities).
+propensity_scores <- predict(propensity_score_model, type = "probs")
+
+# Calculate Inverse Probability of Treatment Weights (IPTW).
+# For each observation, we find the predicted probability corresponding to the
+# treatment it actually received, and then take the inverse of that probability.
+actual_treatment_indices <- as.integer(agriclimate_data_featured$adaptation)
+prob_of_actual_treatment <- sapply(
+  seq_len(nrow(agriclimate_data_featured)),
+  function(i) propensity_scores[i, actual_treatment_indices[i]]
+)
+
+# Add the weights to the dataframe.
+# We use pmax() to prevent extremely small probabilities from creating huge,
+# unstable weights (a process known as weight trimming or stabilization).
+data_with_weights <- agriclimate_data_featured %>%
+  mutate(
+    propensity_score = prob_of_actual_treatment,
+    iptw = 1 / pmax(propensity_score, 1e-4)
+  )
+
+# Fit a weighted linear regression to estimate the ATE.
+# The 'weights = iptw' argument tells the model to use our calculated weights,
+# effectively running the regression on the balanced "pseudo-population".
+weighted_yield_model <- lm(
+  yield_mt_ha ~ adaptation + temp_c + precip_mm + co2_mt + irrigation +
+    pesticide_kg_ha + fertilizer_kg_ha + soil_index + crop + country +
+    region + factor(year),
+  data = data_with_weights,
+  weights = iptw
+)
+# Use robust standard errors to account for potential heteroskedasticity,
+# which is common in weighted analyses.
+coeftest(weighted_yield_model, vcov = vcovHC(weighted_yield_model, type = "HC1"))
+
+# Repeat the same process for the economic impact outcome.
+weighted_econ_model <- lm(
+  econ_impact_usd_million ~ adaptation + temp_c + precip_mm + co2_mt +
+    irrigation + pesticide_kg_ha + fertilizer_kg_ha + soil_index + crop +
+    country + region + factor(year),
+  data = data_with_weights,
+  weights = iptw
+)
+coeftest(weighted_econ_model, vcov = vcovHC(weighted_econ_model, type = "HC1"))
+```
+
+```{r}
+#--- 6.2: Causal Forest (for Heterogeneous Treatment Effects) ---
+# RATIONALE: The PSW method gives an *average* effect across the whole dataset.
+# However, a strategy might be effective for some subgroups and ineffective (or
+# even harmful) for others. Causal Forests are a machine learning method
+# designed specifically to estimate these Heterogeneous Treatment Effects (HTEs).
+# It tells us *for whom* an intervention is most effective, providing more
+# granular, actionable insights.
+
+# Prepare data for the Causal Forest.
+# We will test the effect of "Drought-resistant Crops" vs. all other strategies.
+# CORRECTED: Use the correct data frame name 'agriclimate_data_featured'
+causal_forest_data <- agriclimate_data_featured %>%
+  filter(!is.na(yield_mt_ha)) %>%
+  # Create a binary treatment indicator: 1 if the strategy was
+  # 'Drought-resistant Crops', 0 otherwise.
+  mutate(treatment_indicator = as.integer(adaptation == "Drought-resistant Crops"))
+
+# Causal forests require specific inputs:
+# Y: The outcome variable (a numeric vector).
+# W: The treatment indicator (a binary numeric vector).
+# X: The matrix of covariates (a numeric matrix).
+Y <- causal_forest_data$yield_mt_ha
+W <- causal_forest_data$treatment_indicator
+X <- causal_forest_data %>%
+  select(temp_c, precip_mm, co2_mt, irrigation, pesticide_kg_ha,
+         fertilizer_kg_ha, soil_index, year) %>%
+  as.matrix()
+
+# Train the Causal Forest model.
+set.seed(123)
+causal_forest_model <- causal_forest(X, Y, W)
+
+# Predict the Individual Treatment Effect (ITE) for each observation.
+# This is often denoted as tau-hat (τ̂) and represents the estimated causal
+# effect for that specific observation given its covariates.
+ite_predictions <- predict(causal_forest_model)$predictions
+
+# Add the ITE predictions back to our data for analysis.
+causal_forest_data$ite_tau_hat <- ite_predictions
+
+# Summarize the results to find which crop-region combinations have the
+# highest estimated treatment effect. This provides actionable insights for
+# targeting interventions where they are likely to be most effective.
+intervention_targeting_summary <- causal_forest_data %>%
+  group_by(crop, region) %>%
+  summarise(
+    mean_treatment_effect = mean(ite_tau_hat, na.rm = TRUE),
+    sd_treatment_effect = sd(ite_tau_hat, na.rm = TRUE),
+    num_observations = n(),
+ .groups = "drop" # Ungroup after summarizing
+  ) %>%
+  # Arrange in descending order to see the most promising combinations first.
+  arrange(desc(mean_treatment_effect))
+
+# Print the top 20 most promising crop-region combinations for this strategy.
+print("Top 20 Crop-Region Combinations for 'Drought-resistant Crops' Strategy:")
+print(head(intervention_targeting_summary, 20))
+```
+
+

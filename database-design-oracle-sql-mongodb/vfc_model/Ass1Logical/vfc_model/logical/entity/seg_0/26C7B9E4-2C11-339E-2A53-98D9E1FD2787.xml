@@ -1,0 +1,106 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="26C7B9E4-2C11-339E-2A53-98D9E1FD2787" name="Attendance">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:00:43 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="attendance_id" id="BEEBEA0F-4BFD-090E-883A-D8B03F657C2E">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 17:46:36 UTC</createdTime>
+<commentInRDBMS><![CDATA[attendance unique identity]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_id" id="2A9B0C6F-6BF2-9554-A6FD-E35C6AC535E9">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 17:32:53 UTC</createdTime>
+<commentInRDBMS><![CDATA[Unique identity for member]]></commentInRDBMS>
+<generatorID>75894A34-76F3-89EB-C6C1-5E37F7740193</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>DF3FE909-F402-E41E-C2C8-B285054B0208</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_id" id="DD27DCAC-AD8B-2572-9BE6-4769B7A008FE">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:53:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class unique identity across VFC]]></commentInRDBMS>
+<generatorID>B78C53B4-831F-EDB1-6010-4AE38F7D6AD5</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>56D6C486-20D2-D0A0-0798-D769A8D3BCFF</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="total_attendance" id="7C4508D0-1F83-5944-E962-3E6812AF58E6">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 12:00:49 UTC</createdTime>
+<commentInRDBMS><![CDATA[Quantity of member attendance]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="83D4C516-3361-C988-A86F-8BCE0C68E98F" name="Attendance PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 17:33:45 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<newElementsIDs>BEEBEA0F-4BFD-090E-883A-D8B03F657C2E</newElementsIDs>
+<usedAttributes>
+<attributeRef>BEEBEA0F-4BFD-090E-883A-D8B03F657C2E</attributeRef>
+</usedAttributes>
+</identifier>
+<identifier id="4BDAE7A2-1BEA-EA1D-AA1C-3E18B2E906A9" name="Attendance NK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 17:47:47 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<newElementsIDs>75894A34-76F3-89EB-C6C1-5E37F7740193,B78C53B4-831F-EDB1-6010-4AE38F7D6AD5</newElementsIDs>
+<usedAttributes>
+<attributeRef>2A9B0C6F-6BF2-9554-A6FD-E35C6AC535E9</attributeRef>
+<attributeRef>DD27DCAC-AD8B-2572-9BE6-4769B7A008FE</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

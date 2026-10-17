@@ -1,0 +1,78 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="24ACEDF8-0CE0-0FBB-0EC1-6774984A983B" name="MemberAttendance">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:12:33 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="attendance_id" id="EF47BE33-8B53-E3E5-6C34-05CE33BDE155">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:51:46 UTC</createdTime>
+<commentInRDBMS><![CDATA[attendance unique identity]]></commentInRDBMS>
+<generatorID>7766EE97-BDD4-081A-3EB9-63492C8B96AB</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>BEEBEA0F-4BFD-090E-883A-D8B03F657C2E</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="session_date" id="153E0620-8700-C9B9-BA25-CE72535C089F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:12:56 UTC</createdTime>
+<commentInRDBMS><![CDATA[Session Date]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="attendance" id="4FFB92DB-D3F0-A2CC-3DEB-66D1F5F9DD8D">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:12:56 UTC</createdTime>
+<commentInRDBMS><![CDATA[Attendance]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10</dataTypeSize>
+<ownDataTypeParameters>10,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="B232E10A-7F65-E0E3-757A-3BCCD2D1F564" name="MemberAttendance PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 08:13:08 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>153E0620-8700-C9B9-BA25-CE72535C089F</attributeRef>
+<attributeRef>EF47BE33-8B53-E3E5-6C34-05CE33BDE155</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

@@ -1,0 +1,8 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="vfc_model" id="51566276-DD95-7546-26EC-DDB29BA2CBD4" version="3.5">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:35:45 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>51566276-DD95-7546-26EC-DDB29BA2CBD4</designId>
+</OSDM_Design>

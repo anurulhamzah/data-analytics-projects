@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="Member_to_ClassRegistration" directorySegmentName="seg_0" id="58F609E1-027A-5560-BE53-3C8DE327953F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 15:34:13 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<sourcePk>891E50C9-B6FE-2096-96B6-4434F5117AFF</sourcePk>
+<identifying>false</identifying>
+<nameOnSource>sign up</nameOnSource>
+<nameOnTarget> </nameOnTarget>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>7B529DEE-06E8-4121-3CDC-7EA4F5A042CD</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>0112EF40-4EF8-4CCD-CF8D-B28597A5A7AE</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

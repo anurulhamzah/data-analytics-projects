@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="StaffToCenter" directorySegmentName="seg_0" id="E9E7D3C9-02C1-EA0E-5136-9E63A6F9FD82">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 09:32:49 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<sourcePk>07E64FE1-95FA-1905-B2CC-9AA3F7FC1B23</sourcePk>
+<targetPk>ABF496ED-DFDE-3CAB-EBEC-47DAC65F11E7</targetPk>
+<identifying>false</identifying>
+<nameOnSource> </nameOnSource>
+<nameOnTarget>manage</nameOnTarget>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>14B8C8B0-3B6E-BF33-8DA6-A182E1F364FE</sourceEntity>
+<targetCardinalityString>1</targetCardinalityString>
+<targetEntity>09938F52-30F9-DEEF-8589-10178366F5DE</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

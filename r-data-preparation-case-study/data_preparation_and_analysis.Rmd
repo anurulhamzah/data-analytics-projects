@@ -1,0 +1,1158 @@
+---
+title: "Assignment2_ITI5145_"
+output: html_document
+date: "2025-08-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE,  message = FALSE)
+```
+
+### **A.Data Preparation**
+
+#### **Load libraries**
+
+```{r libraries }
+
+#install.packages(c("tidyr", "dplyr", "ggplot2", "stringr", "knitr", "corrplot"))
+
+library(tidyr) #For tidying data
+library(dplyr) #For data manipulation tasks
+library(ggplot2) #For static data visualizations
+library(stringr)
+library(knitr)
+library(corrplot)
+
+```
+
+In this analysis, several R libraries were used to support data preparation and visualisation. The **tidyr** package was applied to tidy and restructure data into formats suitable for analysis, **dplyr** to help filtering, grouping, and summarising datasets. For visualisation, **ggplot2** was used to create clear and informative charts. The **stringr** package help consistent handling of text data, such as cleaning or standardising category names. To present results neatly, **knitr** was used for rendering tables and outputs in the report. Finally, **corrplot** was used to generate correlation plots, allowing relationships between numerical variables to be easily identified. Together, these libraries ensured a smooth workflow from raw data to insights, and this can be install with **install.packages(c("tidyr", "dplyr", "ggplot2", "stringr", "knitr", "corrplot"))**
+<br>
+
+#### **Load main datasets**
+
+```{r load the data}
+#Load All dataset
+
+#Load the Wastes.csv file
+wastes_dt <- read.csv("Wastes.csv")
+
+#Load the Year_State_ID.csv file
+state_dt <- read.csv("Year_State_ID.csv")
+
+```
+
+<br>
+
+#### **Check data types**
+
+```{r data type}
+# Check the structure data
+str(wastes_dt)
+str(state_dt)
+```
+
+The ID data is still numeric, meanwhile that data should be categorical because we will not use the ID in term of statistical number in future analysis thus we will change the ID's data to categorical
+
+```{r change ID data type}
+#Change the data types of ID to categorical
+wastes_dt <- wastes_dt %>%
+  mutate(
+    Case_ID = as.factor(Case_ID),
+    Year_State_ID = as.factor(Year_State_ID)
+  )
+
+state_dt <- state_dt %>%
+  mutate(ID = as.factor(ID)
+  )
+
+#Reheck the structure of the updated data
+str(wastes_dt)
+str(state_dt)
+```
+<br>
+
+#### **Check for duplicates**
+
+```{r check duplicates}
+
+# Count duplicates in the 'Case_ID' column
+# This should ideally be 0, as Case_ID is a unique identifier
+case_id_duplicates_count <- sum(duplicated(wastes_dt$Case_ID))
+cat("Number of duplicate in 'Case_ID':", case_id_duplicates_count, "\n")
+
+# Count duplicates in the 'ID' column in state_dt
+state_id_duplicates_count <- sum(duplicated(state_dt$ID))
+cat("Number of duplicate in 'State_ID':", state_id_duplicates_count, "\n")
+```
+
+From this calculations, we know that there is **11 duplicate ID data** and since 11 is a small number compared to 36718 rows data (0.03%), we will remove the duplicates in Case_ID
+
+```{r clean duplicates}
+#Make sure the Case_ID is distinct
+wastes_dt <- wastes_dt %>%
+  distinct(Case_ID, .keep_all = TRUE)
+
+#Confirm the deletion
+case_id_duplicates_count <- sum(duplicated(wastes_dt$Case_ID))
+cat("Number of duplicate in 'Case_ID':", case_id_duplicates_count, "\n")
+```
+The script removes duplicate rows  on the Case_ID column by using distinct, where 'distinct' will only select the ID one time which show first and will removes duplicate rows. Then it will recheck wheter there will still be duplicates ID in the ID column.  This approach ensures data integrity by guaranteeing that each Case_ID represents a unique case in the dataset
+<br>
+
+#### **Check for missing value**
+
+```{r check missing value}
+colSums(is.na(wastes_dt)) #Check blank data in wastes data
+
+colSums(is.na(state_dt)) #Check blank data in state data
+```
+
+We found that two variables in the wastes_dt dataset were missing values in **Tonnes column (15 cases) and Core_Non.core column (14 cases)**. These make up only 29 of the 36,718 total records (around 0.08%). Since only a tiny number of rows were lacking data, we decided to delete them instead of using imputation methods. This method makes sure that further analyses are based on full and accurate records, and it avoids adding extra complexity or bias by imputing such a small number of values.
+
+```{r drop na}
+wastes_dt <- wastes_dt %>%
+  drop_na()
+
+colSums(is.na(wastes_dt))
+```
+<br>
+<br>
+
+### **B. Answer the questions**
+<br>
+
+#### **1. Unique Category Values**
+
+To answer this, we will start by explore the 'Category' column to understand its initial state because this is a crucial first step in any data cleaning process. To do this we will use the n_distinct() and unique() to check the number of distict categories and list all the unique category names.
+
+```{r check unique category}
+
+#Calculate the number of unique "Category"
+num_unique_categories <- n_distinct(wastes_dt$Category)
+
+#Display result
+cat("Number of unique 'Category' values:", num_unique_categories, "\n\n")
+
+#Display the list of unique categories
+cat("List of unique 'Category' values:\n")
+unique_categories <- unique(wastes_dt$Category)
+print(sort(unique_categories))
+```
+<br>
+Because we find blank ("") in categories that not detected by previous missing value detection using is.na function, we want to know the size of that empty value in 'categories'
+
+```{r Count empty categories}
+
+#Count the "" categories
+wastes_dt %>%
+  filter(Category == "") %>%
+  summarise(count = n())
+```
+
+
+The Category column contained several inconsistencies, such as:
+
+-   Different spellings (like Plastic vs. Plastics),
+
+-   Capitalization (like organics vs. Organics),
+
+-   Acronyms (like HW vs. Hazardous Wastes),
+
+-   Empty values ("")
+
+If we left these untreated, these flaws would arbitrarily partition the data into many categories that represent the same group, resulting to incorret summaries, deceptive visualizations, and potential mistakes in statistical analysis. Thus we need to standardizing the category names into a consistent format and remove the missing values ( only 3 data) and for this we use mutate funtions and filter function respectively . This procedure makes information easier to understand, stops analysis from being repeated, and makes sure that comparisons can be made with outside sources.
+<br>
+
+```{r fix categories}
+
+#Fix inconsisten categories
+wastes_dt <- wastes_dt %>%
+  mutate(Category = case_when(
+    Category %in% c("Building & demolition materials", "Building and demolition materials") ~ "Building and Demolition Materials",
+    Category %in% c("Hazardous wastes", "HW") ~ "Hazardous Wastes",
+    Category %in% c("Metals & Plastics") ~ "Metals and Plastics",
+    Category %in% c("organics", "Organics") ~ "Organics",
+    Category %in% c("Paper & cardboard") ~ "Paper and Cardboard",
+    Category %in% c("Plastic", "Plastics") ~ "Plastics",
+    Category %in% c("Textiles, leather & rubber (excl. tyres)") ~ "Textiles, Leather and Rubber (Excl. Tyres)",
+    TRUE ~ Category
+  ))
+
+```
+
+```{r remove blank categories}
+#Remove empty category
+wastes_dt <- wastes_dt %>%
+  filter(Category != "")
+```
+<br>
+Last, display the result, and from the calculation, there are *15 unique “Category”* in Wastes dataset
+
+```{r display unique categories}
+#Show unique categories after cleaning
+num_unique_categories <- n_distinct(wastes_dt$Category)
+
+#Display the result
+cat("Number of unique 'Category' values:", num_unique_categories, "\n\n")
+
+#Display the list of unique categories
+cat("List of unique 'Category' values:\n")
+unique_categories <- unique(wastes_dt$Category)
+print(sort(unique_categories))
+
+```
+<br>
+In conclusions, there are 15 unique "Category" values in the *Wastes.csv* data after cleaning. The cleaning process addressed inconsistencies such as different spellings ("Plastic" vs. "Plastics"), capitalization, acronyms ("HW" vs. "Hazardous Wastes"), and empty values, which were found to be 3 cases. The data was standardized to ensure accurate analysis.
+
+<br>
+<br>
+
+#### **2. Negative feedback comments**
+
+First, we need to prepared the data by creating a new column, Impact_Score, by extracting the numeric value from the Description column's environmental score text using a regular expression. we will create the score for Environment impact with extracting number before "/10 ... "
+
+```{r extract env impact score}
+# Extract the score before "/10"
+wastes_dt <- wastes_dt %>%
+  mutate(Impact_Score = as.numeric(str_extract(Description, "(?<=Score: )\\d+")))
+```
+
+Next, use ggplot2 to create a bar chart that visualizes the distribution of these scores, with bars chart, and for scores 2 and 3 we will highlight it to draw attention.
+
+```{r distribution impact score}
+ggplot(wastes_dt, aes(x = factor(Impact_Score))) +
+  geom_bar(aes(fill = Impact_Score %in% c(2,3))) +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +
+  scale_fill_manual(values = c("FALSE" = "steelblue", "TRUE" = "red")) +
+  labs(
+    title = "Distribution of Environmental Impact Scores",
+    x = "Impact Score (1 = very negative, 10 = very positive)",
+    y = "Count of Cases",
+    fill = "Low Score (2 or 3)"
+  ) +
+  theme_gray()
+```
+
+This bar chart displays the quantity of instance are found for each score from 1 to 10 in a dataset of environmental impact scores. The x-axis shows the "Impact Score," which goes from 1 (extremely negative) to 10 (highly positive). The **Count of Cases** on the y-axis shows how many data entries match each score.
+
+
+```{r low impact score filter}
+
+#Filter score 2 and 3
+low_score <- wastes_dt %>%
+  filter(Impact_Score %in% c(2, 3))
+
+nrow(low_score)
+
+```
+After seeing the distribution, now we will select the waste process that has *impact score for 2, and 3 which resulted 6.309 Observations*
+
+The next step is create a list of negative words, such "bad" or "poor," and then use that list to scan through the low_score data's Description column. 
+We are changing the descriptions to lowercase and then searching for any of the keywords to make them searchable. The code then filters out only the comments that give negative feedback and keeps them in a new table called negative_comment.
+
+```{r negative comment}
+
+#Determine the negative keyword
+negative_keywords <- c("bad", "poor", "negative", "harm", "pollution", "worse", "negatively", "Detrimental", "Destructive", "Damaging")
+
+negative_comment <- low_score %>%
+  filter(str_detect(tolower(Description), paste(negative_keywords, collapse = "|")))
+
+```
+
+After classifying the comments,we counted the total description who has negative word in the low impact score
+
+The results are shown in a bar chart where the x-axis displays the two categories, and the y-axis shows their percentage share. Each bar also includes labels with the actual count and percentage to make the result easier to interpret. The red bar represents negative comments, while the blue bar represents non-negative ones, making the distinction clear. 
+
+```{r count negative comments}
+
+#Count negative vs non-negative among low scores
+neg_summary <- low_score %>%
+  mutate(is_negative = ifelse(str_detect(tolower(Description), 
+                                         paste(negative_keywords, collapse = "|")), 
+                              "Negative Comment", "Not Negative")) %>%
+  count(is_negative) %>%
+  mutate(percentage = round(100 * n / sum(n), 2))
+
+print(neg_summary)
+
+#Plot percentage chart
+ggplot(neg_summary, aes(x = is_negative, y = percentage, fill = is_negative)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(n, " (", percentage, "%)")), 
+            vjust = -0.5, size = 4) +
+  scale_fill_manual(values = c("Negative Comment" = "red", "Not Negative" = "steelblue")) +
+  labs(
+    title = "Negative Feedback Among Low Impact Scores (2 & 3)",
+    x = "",
+    y = "Percentage"
+  ) +
+  theme_gray() +
+  theme(legend.position = "none")
+```
+
+This visualization helps highlight feedback in low impact scores at score 2 or 3 has categorizing as either "Negative Comment" and "Not Negative." The data shows that the majority of this feedback, 75.08% (4.737 comments), is not explicitly negative, while *24.92% (1.572 comments) contains predefined negative keywords*.
+
+<br>
+<br>
+#### **3. Fractions of Waste Tonnes by Stream**
+
+The first step was to check whether the Tonnes column contained missing values or not. Using sum(is.na(wastes_dt$Tonnes)) and filtering rows where Tonnes is NA, we confirmed that there were no missing records. This ensured that the data was complete and reliable for calculating fractions.
+
+```{r Check}
+# Check if any Tonnes are missing
+sum(is.na(wastes_dt$Tonnes))
+```
+
+Next, we calculated the total Tonnes for each category and identified categories with zero totals. The results showed that “Metals and Plastics” and “Recycling” had no recorded waste. Highlighting this step was important because categories with zero totals could create issues when calculating fractions, leading to division by zero or misleading results.
+
+```{r}
+# Check if any categories have total Tonnes = 0
+category_totals <- wastes_dt %>%
+  group_by(Category) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE))
+
+category_totals %>% filter(total_tonnes == 0)
+```
+```{r fraction 2}
+
+# Compute total Tonnes by Category
+category_totals <- wastes_dt %>%
+  group_by(Category) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+# Compute fractions of total tonnes per Category
+category_fractions <- category_totals %>%
+  mutate(fraction = total_tonnes / sum(total_tonnes))
+
+# Check for NaN fractions
+category_fractions %>% filter(is.nan(fraction))
+```
+
+```{r filter nan}
+category_fractions_clean <- category_fractions %>%
+  filter(!is.nan(fraction))
+
+```
+
+After cleaning, we grouped the data by Category and Stream, and calculated the total tonnes within each group. Then, we calculated the fraction of each stream’s tonnes relative to its category’s total. Rows with NaN fractions were removed to keep only meaningful results. This created a dataset showing the share of each stream for every category.
+
+Last, plotted a stacked bar chart to illustrate the fractions of waste streams across categories. Each bar represents a waste category, and its segments show the proportion of C&D, C&I, and MSW waste. The y-axis uses percentages, and the x-axis lists categories tilted for readability. This visualization makes it easy to compare how different waste streams contribute within each category.
+
+```{r calculate fractions}
+# Calculate fractions of waste sources within each Category
+category_fractions_clean <- wastes_dt %>%
+  group_by(Category, Stream) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Category) %>%
+  mutate(fraction = total_tonnes / sum(total_tonnes)) %>%
+  filter(!is.nan(fraction))   # <--- remove NaN rows
+
+print(category_fractions_clean)
+
+# Plot stacked bar chart (fractions per Category)
+ggplot(category_fractions_clean, aes(x = Category, y = fraction, fill = Stream)) +
+  geom_col(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Waste Composition by Stream",
+    subtitle = "Fraction of total tonnes within each waste category",
+    x = "Waste Category",
+    y = "Fraction of Total (%)",
+    fill = "Stream"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+Based on data and graph, the composition of waste streams varies significantly across different waste categories. The tibble data table provides the raw numbers, showing the fraction of waste from three primary streams which are Commercial and Industrial (C&I), Construction and Demolition (C&D), and Municipal Solid Waste (MSW). The stacked bar chart visually represents this information, with each bar totaling 100% to show the proportional breakdown for each category.
+
+The key point is that the C&I stream (green) is the largest contributor to most categories, especially for materials like Ash and Biosolids. The C&D stream (red) primarily dominates categories related to construction, such as Building and Demolition Materials. The MSW stream (blue) is a significant source for common consumer waste products like Aluminium and Glass, which show a more mixed contribution from all three streams.
+
+<br>
+<br>
+
+#### **4. Total Waste Tonnes for Each Year and State**
+
+For this task, we started by joining the Year and State columns from Year_State_ID.csv into the main waste dataset using the common Year_State_ID field. here we use left join to join with the key "Year_State_ID" = "ID"
+
+```{r join dataset}
+# Join Year and State into wastes_dt using Year_State_ID = ID
+join_dt <- wastes_dt %>%
+  left_join(state_dt, by = c("Year_State_ID" = "ID"))
+```
+
+After merging, we cleaned the State values to ensure consistency. This included trimming spaces, converting text to proper case, and recoding abbreviations (e.g., “Nsw” → “NSW”, “Qld” → “QLD”). we also removed the row labeled “Australia” since the analysis focuses only on individual states. This step ensured that the state names were standardized and ready for grouping.
+
+```{r fix state}
+
+join_dt <- join_dt %>%
+  mutate(
+    #Trim spaces and normalize case
+    State = str_trim(State),
+    State = str_to_title(State),
+    
+    #Recode with case_when
+    State = case_when(
+      State == "Act" ~ "ACT",
+      State == "Nsw" ~ "NSW",
+      State == "Qld" ~ "QLD",
+      State == "Nt"  ~ "NT",
+      State == "Sa"  ~ "SA",
+      State == "Tas" ~ "TAS",
+      State == "Vic" ~ "VIC",
+      State == "Wa"  ~ "WA",
+      TRUE ~ State   # fallback for other values
+    )
+  )
+
+#Remove Australia word
+join_dt <- join_dt %>%
+  filter(State != "Australia")
+
+unique(join_dt$State)
+
+```
+
+Next, we grouped the cleaned dataset by Year and State to calculate the total waste tonnes for each combination, and stored the result in a dataset named temp. Using this dataset, we then summarized the statistics of waste generation for each state in a single command: computing the minimum, maximum, and mean total tonnes. The output shows clear differences across states; for example, New South Wales (NSW) and Victoria (VIC) report the highest mean waste generation, while smaller regions like the Northern Territory (NT) and ACT show much lower totals. This statistical overview highlights the scale of waste differences between states over time.
+
+```{r compute total waste}
+
+#compute total waste tonnes per Year and State
+temp <- join_dt %>%
+  group_by(Year, State) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+#display the statistical information
+temp %>%
+  group_by(State) %>%
+  summarise(
+    Min = min(total_tonnes),
+    Q1 = quantile(total_tonnes, 0.25),
+    Median = median(total_tonnes),
+    Mean = mean(total_tonnes),
+    Q3 = quantile(total_tonnes, 0.75),
+    Max = max(total_tonnes)
+  )
+
+```
+
+Based on the data table, the Australian states show significant differences in their statistical ranges. The table, or tibble, provides minimum, maximum, and mean values for each state. This data reveals a clear hierarchy: New South Wales **(NSW)** and Victoria **(VIC)** consistently **show the highest values across the board**, suggesting they are the largest contributors or centers in the dataset.
+
+In contrast, states like South Australia (SA) and Tasmania (TAS) have much lower values overall, while the Northern Territory (NT) has the lowest figures and a very small range between its minimum and maximum values. Queensland (QLD) and Western Australia (WA) fall in between, with high values that are still notably lower than those of NSW and VIC.
+
+<br>
+<br>
+
+#### **5. Yearly Trend of Food Organics Waste**
+
+To analyze the yearly trend of food organics waste, we first converted the Year column from a “Year–Year” format (e.g., “2018–2019”) into a single starting year (e.g., “2018”). This ensured consistency and allowed the values to be treated as integers for plotting. 
+
+```{r Extract year}
+# Convert "Year-Year" (e.g., "2018-2019") into just "2018"
+join_dt <- join_dt %>%
+  mutate(Year = str_extract(Year, "^[0-9]{4}")) %>%
+  mutate(Year = as.integer(Year))
+```
+
+Then filtered the dataset to include only rows where the waste type was Food organics. After filtering, we grouped the data by Year and State and calculated the total waste tonnes for each group. This created a clean dataset showing yearly totals of food organics waste for each state.
+
+```{r Filter Organics}
+# Filter only "Food organics"
+food_organics <- join_dt %>%
+  filter(Type == "Food organics")
+
+# Compute yearly total waste tonnes per state
+yearly_trend <- food_organics %>%
+  group_by(State, Year) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+```
+
+The processed data was plotted using a line chart, with years on the x-axis and total waste tonnes on the y-axis. Each state is represented by a distinct colored line, allowing for easy comparison of trends across regions. Data points were marked with dots to emphasize yearly values, while lines show the overall progression over time. This visualization makes it clear how food organics waste has changed year by year in each state, highlighting both growth patterns and differences between states.
+
+```{r Display Organics}
+# Draw the yearly trend chart
+ggplot(yearly_trend, aes(x = Year, y = total_tonnes, color = State, group = State)) +
+  geom_line(linewidth = 1.2) +   # use linewidth instead of size
+  geom_point(size = 2) +
+  labs(
+    title = "Yearly Trend of Food Organics Waste Tonnes by State",
+    x = "Year",
+    y = "Total Waste Tonnes"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Based on the line chart showing the yearly trend of food organics waste, a clear disparity exists among Australian states. New South Wales (NSW) and Victoria (VIC) are the dominant waste producers, with consistently high volumes, though NSW exhibits more volatile fluctuations. In contrast, states like Queensland (QLD) and South Australia (SA) maintain a lower but relatively stable level of waste generation.
+
+The Australian Capital Territory (ACT) and the Northern Territory (NT) are the lowest contributors to food organics waste. Furthermore, a general downward trend in waste generation is observable in Western Australia (WA) and Tasmania (TAS), indicating a decrease in their contributions over the period shown.
+
+<br>
+<br>
+
+### **6. Most Recycled, Most Disposed, and Most Increased Waste Types**
+
+First we filtered the dataset to include only records where the waste fate was Recycling. Then, grouped the data by Year and Type, and calculated the total tonnes for each combination. After arranging the results in descending order, the first row gave the waste type with the highest recycled amount in a given year. 
+
+```{r most recycled}
+#Most recycled waste Type with year
+most_recycled <- join_dt %>%
+  filter(Fate == "Recycling") %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(Total_Tonnes)) %>%
+  slice(1)
+
+most_recycled
+```
+
+The result showed that in **2020, Bricks, concrete and pavers was the most recycled waste type**, with over **10 million tonnes**.
+
+
+Using  the same concept but filtered the data for waste fate Disposal. Again, we grouped by Year and Type and calculated totals.
+
+```{r most disposed}
+# Most disposed waste Type with year
+most_disposed <- join_dt %>%
+  filter(Fate == "Disposal") %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(Total_Tonnes)) %>%
+  slice(1)
+
+most_disposed
+
+```
+
+The largest valuefor disposal appeared in **2008, where Food organics was the most disposed waste type**, with about **4 million tonnes** sent to disposal. 
+This highlights that food waste contributes significantly to disposal compared to other types.
+
+To find the waste type with the biggest increase over time, we grouped the data by Year and Type and calculated total tonnes. Then, for each type,compute the difference between its highest-year and lowest-year totals.  
+```{r calculated waste increase}
+
+waste_increase <- join_dt %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(Type, Year) %>%
+  group_by(Type) %>%
+  summarise(Increase = Total_Tonnes[which.max(Year)] - Total_Tonnes[which.min(Year)], .groups = "drop") %>%
+  arrange(desc(Increase)) %>%
+  slice(1)
+
+waste_increase
+
+```
+Sorting these results showed that Bricks, concrete and pavers had the largest increase, with growth of over 8 million tonnes across the period.
+
+Finally, I plotted a line chart to visualize the yearly trend for this waste type, showing a steady upward pattern that confirms its increasing contribution to total waste over time.
+
+```{r}
+# Summarize total tonnes by Type and Year
+trend_summary <- join_dt %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+# Calculate increase and select top 1 Type
+top_increase_type <- trend_summary %>%
+  group_by(Type) %>%
+  summarise(Increase = Total_Tonnes[which.max(Year)] - Total_Tonnes[which.min(Year)], .groups = "drop") %>%
+  arrange(desc(Increase)) %>%
+  slice(1) %>%
+  pull(Type)
+
+# Filter for that Type
+top_trend <- trend_summary %>%
+  filter(Type == top_increase_type)
+
+# Plot
+ggplot(top_trend, aes(x = Year, y = Total_Tonnes, group = 1)) +
+  geom_line(color = "blue", size = 1.2) +
+  geom_point(color = "darkred", size = 3) +
+  labs(title = paste("Waste Type with Largest Increase Over Years:", top_increase_type),
+       x = "Year",
+       y = "Total Tonnes") +
+  theme_gray()
+
+```
+The provided line graph illustrates a dramatic increase in the total tonnes of "Bricks, concrete and pavers" waste. 
+The amount of this waste remained relatively stable between 2007 and 2013, hovering around 2 to 3 million tonnes. However, starting in 2014, the waste generation experienced a sharp and consistent upward trend, with the total tonnes skyrocketing to over 10 million by 2020. 
+
+To sum up, **The most recycled** waste type was Bricks, concrete and pavers in 2020, with over 10 million tonnes. **The most disposed** waste type was Food organics in 2008, with about 4 million tonnes sent to disposal and The waste type with **the largest increase** over the years was Bricks, concrete and pavers, which grew by over 8 million tonnes across the period.
+
+<br>
+<br>
+
+#### **7. Factors Influencing Environmental Impact Scores**
+
+##### **a. Evaluate with tonnes, year and environmental growth**
+
+To find the factor that influence impact score, first we will investigate the corelation between numeric variable by heatmap. In this step, we selected only the numeric variables from the dataset and calculated their correlation values.
+
+The correlation matrix was then plotted using the corrplot function, which provides both color shading and numeric labels for easier interpretation. This helps to identify specially to see which variables move together strongly, either positively or negatively with the impact score.
+
+```{r Heatmap}
+
+
+#Select numeric
+numeric_data <- join_dt %>% select(where(is.numeric))
+
+#Compute correlation matrix
+corr_matrix <- round(cor(numeric_data), 2)
+
+#Plot correlation matrix with a title
+corrplot(corr_matrix, method = "color", type = "lower",
+         tl.col = "black", tl.srt = 45,
+         addCoef.col = "darkblue", number.cex = 0.7,
+         title = "Correlation Matrix of Numeric Variables")
+```
+
+This correlation matrix shows the relationships between four variables: "Tonnes," "Impact Score," "Year," and "Economic_Growth." Based on the correlation matrix, **the Impact Score has a very weak or non-existent correlation with the other variables**. Its correlation with Tonnes is a negligible 0.07, with Year is 0.06, and with Economic Growth is -0.02. This suggests that in this dataset, there is no strong linear relationship between the impact of something (as measured by the score) and the volume of waste generated, the specific year, or the level of economic growth.
+<br>
+
+##### **b. Evaluate with Fate**
+
+Then, Check the effect of fate to impact score. here, we grouped the data by waste fate and calculated the average environmental impact score for each category. To compare the distribution spread and central tendency across different fates we use boxplot. 
+
+
+```{r impact core by fate}
+#Fate vs Impact_Score
+
+# Average score by Fate
+impact_fate <- join_dt %>%
+  group_by(Fate) %>%
+  summarise(Avg_Impact = mean(Impact_Score, na.rm = TRUE))
+
+ggplot(join_dt, aes(x = Fate, y = Impact_Score, fill = Fate)) +
+  geom_boxplot() +
+  labs(title = "Impact Score by Waste Fate", y = "Environmental Impact Score") +
+  theme_gray()
+```
+
+From the chart, the environmental impact score varies significantly depending on the waste's final destination. The data shows that **Recycling have the highest impact scores**. Waste sent to Energy recovery, Long-term storage, and Waste reuse all have very nearly identical impact scores which is around 5 and disposal range from the lowest of 1 until 6. This indicates that these specific methods of waste handling influences the environmental impact in this dataset.
+<br>
+
+##### **c. Evaluate with Stream**
+
+Next, we examine how impact scores differ across waste streams. we compared the distribution of scores for each stream category. This visualization will provide insight into variability and median values, helping to understand which streams carry relatively higher or lower environmental impacts.
+
+```{r stream an category}
+# Boxplot by Stream
+ggplot(join_dt, aes(x = Stream, y = Impact_Score, fill = Stream)) +
+  geom_boxplot() +
+  labs(title = "Impact Score by Waste Stream")
+
+# Average impact by Category
+impact_category <- join_dt %>%
+  group_by(Category) %>%
+  summarise(Avg_Impact = mean(Impact_Score, na.rm = TRUE)) %>%
+  arrange(desc(Avg_Impact))
+
+```
+The environmental impact score varies among different waste streams. The Municipal Solid Waste (MSW) stream shows the highest median impact score and the widest range, indicating that residential waste has a generally higher environmental impact compared to others. The Commercial and Industrial (C&I) and Construction and Demolition (C&D) streams have very similar and lower median impact scores, although the C&D stream shows some individual outliers with unusually high or low impact scores.
+<br>
+
+##### **d. Evaluate by Categories**
+
+This time we analyzed the environmental impact of different waste categories by calculating both the average and median Impact_Score, along with the total number of records for each category. The median was included because it can provides a more reliable measure when dealing with skewed data, while the average highlights overall differences between categories. These results were then visualised in a horizontal bar chart, where the categories were reordered by their average score to make comparisons clearer.
+
+```{r Categories}
+
+#Calculate the mean and median Impact_Score
+category_summary <- join_dt %>%
+  group_by(Category) %>%
+  summarise(
+    Avg_Impact_Score = mean(Impact_Score, na.rm = TRUE),
+    Median_Impact_Score = median(Impact_Score, na.rm = TRUE),
+    Count = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Avg_Impact_Score))
+
+#Print the summary table
+print(category_summary)
+
+#Visualize the average Impact_Score by Category
+ggplot(category_summary, aes(x = Avg_Impact_Score, y = reorder(Category, Avg_Impact_Score))) +
+  geom_bar(stat = "identity", fill = "blue") +
+  geom_text(aes(label = round(Avg_Impact_Score, 2)), hjust = -0.5, size = 3) +
+  labs(
+    title = "Average Environmental Impact Score by Waste Category",
+    x = "Average Impact Score",
+    y = "Waste Category"
+  ) +
+  theme_gray() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+The horizontal bar chart shows that the average environmental effect score is very different for each type of garbage.  Aluminum has the greatest average impact score, which is 8. Other common materials, like metals, glass, and plastics, also have scores above 6. Toxic wastes, organics, and recycling, on the other hand, have the lowest average impact scores, with toxic wastes at 3.  This shows that the environmental impact of different forms of waste is not the same; certain materials in this dataset have a significantly bigger impact than others.
+<br>
+
+#### **e. Categories and Fate**
+
+In this part of the analysis, we looked at how Impact_Score is affected not just by the sort of trash (Category) but also by its Fate (the way the garbage is handled).  To do this, the dataset was organized by both Category and Fate, and summary statistics, including average and median scores, were computed.  This method lets us examine how the effect on the environment changes based on what happens to each sort of garbage.  We might be able to see patterns that we couldn't see if we only looked at waste categories separately by putting these two dimensions together.
+
+
+```{r combine}
+
+#Interaction between Category and Fate on Impact_Score
+category_fate_summary <- join_dt %>%
+  group_by(Category, Fate) %>%
+  summarise(
+    Avg_Impact_Score = mean(Impact_Score, na.rm = TRUE),
+    Count = n(),
+    .groups = "drop"
+  ) %>%
+  filter(Count > 10) # Filter out categories with very few cases for better visualization
+
+# Visualize the bar chart
+ggplot(category_fate_summary, aes(x = Avg_Impact_Score, y = reorder(Category, Avg_Impact_Score), fill = Fate)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = round(Avg_Impact_Score, 2)), 
+            position = position_dodge(width = 0.9),
+            hjust = -0.1, size = 3) +
+  labs(
+    title = "Average Environmental Impact Score by Waste Category and Fate",
+    x = "Average Impact Score",
+    y = "Waste Category",
+    fill = "Waste Fate"
+  ) +
+  theme_gray()
+
+
+```
+
+For most waste categories, Recycling has a consistently higher average impact score than other waste fates like Disposal which suggesting that the processes involved in recycling are associated with a significant environmental impact in this dataset.
+Disposal's effect depends on the material; sometimes it gets a better score than recycling, and other times it gets a lower value. The figure also shows that garbage from businesses and construction sites, like building and demolition materials, usually has a big influence on the environment no matter what happens to it.
+<br>
+
+#### **f. Evaluate the significant level**
+
+Finally, we try built a multiple linear regression model using *lm functions* to quantify the combined effects of waste fate, stream, category, tonnes, and economic growth on environmental impact scores. 
+
+```{r multilinear regresssion}
+
+#Perform multilier regression
+model <- lm(Impact_Score ~ Fate + Stream + Category + Tonnes + Core_Non.core + Economic_Growth, data = join_dt)
+summary(model)
+
+```
+
+By examining the p-value, the results show that recycling and energy recovery have strong positive associations, while several categories such as organics, plastics, and hazardous waste are negatively associated with impact scores. The tonnes variable also has a significant positive effect, while economic growth has a small but significant negative effect. but the model explains about 22% of the variation in impact scores, suggesting that while these factors are meaningful, other influences not captured in the data may also be important. So that in conclussion, **Fate variable has a strong significant effect on Impact Score, so that Category variable and tonnes  Variable**
+
+
+The conclussion is that the environmental impact scores are primarily influenced by **waste fate, category, and tonnes**, with recycling showing a strong positive association with higher scores. The initial correlation matrix indicated no strong linear relationship between the impact score and numerical variables like tonnes, year, or economic growth. However, further analysis with categorical variables and a multiple linear regression model revealed that the final destination of the waste (Fate) and its classification (Category) are significant factors. The model explained a modest 22% of the variation, suggesting other, unexamined factors also play a role in determining the environmental impact score.
+
+<br>
+<br>
+
+#### **8. Number of Cases of Different "score_range" Values**
+
+First, we filtered the dataset to keep only records where the category is Hazardous Wastes, the type is Tyres (T140), and the tonnes value is greater than zero (to make sure non negative value). This will allow the analysis to focus specifically on tyre waste under hazardous materials, while excluding any irrelevant or missing entries.
+
+```{r filter data}
+
+#Filter dataset
+filtered_dt <- join_dt %>%
+  filter(Category == "Hazardous Wastes",   
+         Type == "Tyres (T140)",           
+         Tonnes > 0)
+
+```
+
+Next is to create a column named Tonnes_range where the value will be from categorizing the range. Each record was categorized into one of four predefined intervals: [0, 10000), [10000, 20000), [20000, 40000), and [40000, 80000]. Because the number has high variety, This grouping will make it easier to compare tyre waste quantities across states without dealing with raw continuous values.
+
+
+```{r categorizing}
+
+#Create Tonnes_range
+filtered_dt <- filtered_dt %>%
+  mutate(Tonnes_range = case_when(
+    Tonnes >= 0 & Tonnes < 10000 ~ "[0, 10000)",
+    Tonnes >= 10000 & Tonnes < 20000 ~ "[10000, 20000)",
+    Tonnes >= 20000 & Tonnes < 40000 ~ "[20000, 40000)",
+    Tonnes >= 40000 & Tonnes <= 80000 ~ "[40000, 80000]",
+    TRUE ~ "Out of range"
+  ))
+
+```
+
+To display the number of cases of different score_range values, we have to create another new column which is score_range. The value will be created by classify the Impact_Score values into three groups: 1–3 (Low), 4–6(Medium), and 7–10(High) 
+Thiswill helps in summarizing and visualizing environmental impacts in a structured way, making patterns easier to observe when comparing across states
+
+```{r create score_range}
+
+# Create score_range (using Impact_Score)
+filtered_dt <- filtered_dt %>%
+  mutate(score_range = case_when(
+    Impact_Score >= 1 & Impact_Score <= 3 ~ "1–3",
+    Impact_Score >= 4 & Impact_Score <= 6 ~ "4–6",
+    Impact_Score >= 7 & Impact_Score <= 10 ~ "7–10"
+  ))
+
+```
+
+Finally, we group the data and create a bar chart to show the number of cases for each score_range, with separate panels for each state. We use faceting to allows direct comparison of impact score distributions across regions.
+
+
+```{r}
+grouped_data <- filtered_dt %>%
+  group_by(State, score_range) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+ggplot(grouped_data, aes(x = score_range, y = Total_Tonnes, fill = score_range)) +
+  geom_col() +
+  geom_text(aes(label = round(Total_Tonnes, 0)),   # show rounded values
+            vjust = -0.5, size = 2.5) +           # adjust vertical position
+  facet_wrap(~ State) +
+  labs(title = "Hazardous Tyre Waste (Tonnes) by Score Range and State",
+       x = "Score Range",
+       y = "Total Tonnes") +
+  theme_minimal()
+```
+
+
+The bar charts show that the total amount of hazardous tire waste varies significantly from state to state in Australia. This is a big variance from the case counts, which show a constant pattern. New South Wales (NSW) has a much larger total tonnage than any other state. Queensland (QLD), Victoria (VIC), and Western Australia (WA) are also big producers of this waste, while the Australian Capital Territory (ACT), Northern Territory (NT), and Tasmania (TAS) make far less of it.
+
+A consistent pattern across the major producing states is that the highest tonnage of hazardous tyre waste falls within the lowest score range of **1-3** except for WA. This indicates that while states like NSW, QLD, and VIC handle very high volumes of this waste, the majority of this tonnage is associated with incidents that are categorized as having a relatively low environmental impact.
+
+
+The conclussion is, that the total tonnage of hazardous tyre waste **varies significantly by state**. New South Wales (NSW), Victoria (VIC), and Queensland (QLD) are major producers, with NSW having a significantly larger total tonnage than other states. 
+A key observation is that for these major producing states, the highest tonnage of this waste falls within the low-impact score range of 1-3. This indicates that while they handle large volumes, most of this waste is associated with a relatively low environmental impact.
+<br>
+<br>
+
+#### **9. Factors Influencing the Yearly Trend of Total C&D Waste Tonnes**
+
+##### **a. Review the trend**
+
+To begin the analysis, we will examine the trend  on the "Building and Demolition Materials" category, which represents Construction and Demolition (C&D) waste. to do this we will filter the data by "Building and Demolition Materials category". The dataset was grouped by year and the total of waste were calculated by tonnes. This trend will help giving insight when the number is spike, or fluctuate based on time.
+
+```{r C&D trend waste global}
+
+#filter only C&D waste
+cd_trend <- join_dt %>%
+  filter(Category == "Building and Demolition Materials") %>%
+  group_by(Year) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+
+ggplot(cd_trend, aes(x = Year, y = Total_Tonnes)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_point(color = "red", size = 3) +
+  geom_text(aes(label = Total_Tonnes),
+            vjust = -1,
+            size = 2,
+            color = "black") +
+  scale_x_continuous(breaks = cd_trend$Year) +   # show all years
+  labs(
+    title = "Yearly Trend of Total C&D Waste (Tonnes)",
+    x = "Year",
+    y = "Total Tonnes"
+  ) +
+  theme_gray()
+
+```
+The resulting graph shows how the overall volume of C&D waste has changed across the observed period and consistenly increased. However, the high spike is staring from the year of 2013, and continued until the upcomming years. This first step establishes the baseline trend that requires further investigation.
+<br>
+
+##### **b. Waste levels across the states**
+Next, we examined how waste levels differed across states. By filtering for the same category and grouping by state, calculate the total tonnes of waste generated in each region. The result is visualised using a bar chart, with waste values displayed above each column for better readability.
+
+```{r total per state}
+
+#filter only Building and Demolition Materials
+bd_waste <- join_dt %>%
+  filter(str_to_lower(Category) == "building and demolition materials")
+
+#summarise total tonnes of B&D waste per state
+bd_total_state <- bd_waste %>%
+  group_by(State) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+#create bar chart
+ggplot(bd_total_state, aes(x = State, y = Total_Tonnes, fill = State)) +
+  geom_col() +
+  geom_text(aes(label = round(Total_Tonnes, 0)), vjust = -0.5, size = 3) +
+  labs(
+    title = "Total Building & Demolition Waste by State",
+    x = "State",
+    y = "Total Waste (Tonnes)"
+  ) +
+  theme_gray() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+The results revealed which states contributed the most to overall C&D waste generation. Based on the bar chart, the total amount of building and demolition waste varies significantly by state. 
+The majority of this waste is produced by Victoria (VIC) and New South Wales (NSW), which generated over 51 million and 44 million tonnes, respectively. These two states are the dominant producers by a considerable margin. In the intermediate range, Western Australia (WA), Queensland (QLD), and South Australia (SA) contribute significantly less, with tonnages ranging from roughly 9 million to 11 million. The lowest producer by a wide margin is the Australian Capital Territory (ACT), with just over 1 million tonnes of waste.
+
+
+```{r data table}
+
+#Create a data frame with the collected data for the year 2020
+waste_data_2020 <- tibble(
+  State = c("ACT", "NSW", "QLD", "SA", "VIC", "WA"),
+  Area_km2 = c(2358, 801150, 1729742, 984321, 227444, 2527013),
+  Population_2020 = c(432266, 8153000, 5187000, 1770000, 6682000, 2690000),
+  Total_Building_Waste_Tonnes_2020 = c(1140240, 44685055, 8248709, 9501042, 51033520, 11706507),
+  HDI_2020 = c(0.976, 0.946, 0.932, 0.940, 0.948, 0.967)
+) %>%
+  # Calculate population density
+  mutate(Population_Density_Per_km2 = Population_2020 / Area_km2) %>%
+  # Sort the data in descending order of Total_Building_Waste_Tonnes
+  arrange(desc(Total_Building_Waste_Tonnes_2020))
+
+#Format the table using kable
+kable(waste_data_2020, 
+      col.names = c("State", "Area (km²)", "Population (2020)", "Building Waste (2020)", "Human Development Index (2020)", "Population Density (per km²)"),
+      caption = "Summary of Australian States' Building & Demolition Waste, Area, Population, and Development (2020)")
+
+
+```
+
+By comparing the waste data and population data from population data comes from the Australian Bureau of Statistics (ABS), we see that the total volume of C & D waste generally aligns with a state's population where we see the states with the most people, **Victoria and New South Wales**, also produce the most waste. 
+However, the picture changes when we factor in population density and a state's size.
+Waste output is not in line with a state's total land area. In fact, it's quite the opposite. Smaller, more densely populated areas like the Australian Capital Territory (ACT) and Victoria produce significantly more waste per square kilometer than larger, more sparsely populated states like Western Australia. 
+This indicates that the concentration of urban development and construction activity is a bigger driver of waste than the sheer size of the state.
+<br>
+
+##### **c. Yearly waste trend per state**
+
+To gain a more detailed view, we created a faceted line chart that tracks the yearly waste trend for each state individually. This approach allows us to see not only how the national trend evolves but also how different states experience their own unique patterns.
+
+```{r trend per state}
+
+#Filter only Building and Demolition Materials
+cd_waste <- join_dt %>%
+  filter(Category == "Building and Demolition Materials")
+
+#Ensure Year is numeric
+cd_waste <- cd_waste %>%
+  mutate(Year = as.integer(Year))
+
+#Compute yearly total waste tonnes per state
+yearly_cd_trend <- cd_waste %>%
+  group_by(State, Year) %>%
+  summarise(total_tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+#Plot yearly trend faceted by state
+library(ggplot2)
+
+ggplot(yearly_cd_trend, aes(x = Year, y = total_tonnes)) +
+  geom_line(color = "steelblue", linewidth = 1.2) +
+  geom_point(color = "darkred", size = 2) +
+  labs(
+    title = "Yearly Trend of Building & Demolition (C&D) Waste per State",
+    x = "Year",
+    y = "Total C&D Waste (Tonnes)"
+  ) +
+  facet_wrap(~ State, scales = "free_y") +
+  theme_gray() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+The line graphs show that the amount of building and demolition (C&D) waste in Australia is not simply increasing up every year.  It's not a static pattern; it's affected by the cycles of construction and the economy.  Starting approximately 2013, most states, including the Australian Capital Territory (ACT), South Australia (SA), Victoria (VIC), and Western Australia (WA), had a sudden and steady rise in the amount of waste they produced.
+
+The more populated states of Queensland (QLD) and New South Wales (NSW), on the other hand, show inconsistent patterns with notable ups and downs, indicating that their waste production is related to large, project-based operations rather than steady, linear expansion.
+
+##### **Linking External Factors** 
+
+Load external data
+```{r load external}
+#Load external dataset
+
+#Load the Dweling file
+dwelling_dt <- read.csv("Dwelling units approved.csv", 
+                 skip = 1,      # skip the first metadata row
+                 header = TRUE) # use the next row as headers
+
+
+#Load the disaster file
+disaster_dt <- read.csv("disaster.csv")
+
+#Load the population file
+pop_data <- read.csv('Components of annual population change.csv', skip = 1, stringsAsFactors = FALSE)
+
+```
+
+##### **d. Dwelling Approvals**
+
+Since C&D waste is closely tied to construction activity, we included an external dataset on dwelling unit approvals (sourced from ABS).
+The data was processed by cleaning, converting date formats, and aggregating yearly averages up to 2020. The resulting line chart shows how dwelling approvals trended over time. 
+
+```{r dwelling}
+
+#Give proper column names
+colnames(dwelling_dt) <- c("Month", "Seasonally_Adjusted", "Trend")
+
+#Remove commas and convert numbers
+dwelling_dt$Seasonally_Adjusted <- as.numeric(gsub(",", "", dwelling_dt$Seasonally_Adjusted))
+dwelling_dt$Trend <- as.numeric(gsub(",", "", dwelling_dt$Trend))
+
+#Convert Month to Date format
+dwelling_dt$Date <- as.Date(paste0("01-", dwelling_dt$Month), format = "%d-%b-%y")
+dwelling_dt$Year <- as.integer(format(dwelling_dt$Date, "%Y"))  # <-- make it integer
+
+#Aggregate yearly data (e.g., average of Trend)
+yearly_trend <- aggregate(Trend ~ Year, data = dwelling_dt, FUN = mean)
+
+#Keep only data up to 2020
+yearly_trend <- subset(yearly_trend, Year <= 2020)
+
+#Plot yearly trend with integer tick labels
+
+ggplot(yearly_trend, aes(x = factor(Year), y = Trend, group = 1)) +
+  geom_line(size = 1, color = "blue") +
+  geom_point(size = 2, color = "red") +
+  labs(title = "Yearly Trend of Dwelling Units Approved (up to 2020)",
+       x = "Year", y = "Trend (no.)") +
+  theme_gray()
+
+```
+Comparing this with the C&D waste trend suggests that while the number of dwelling units approved showed a distinct cyclical trend with a peak in 2015, the total volume of Construction and Demolition (C&D) waste followed a continuous, sharp upward trajectory, especially after 2013. This indicates that C&D waste is not solely driven by new dwelling approvals.
+Instead, the steady, dramatic increase in C&D waste may suggests that other factors are at play, such as large-scale infrastructure projects (e.g., roads, public works) or a significant increase in renovation and demolition activities that are not related to new residential approvals. 
+The continuous rise in waste volume, even during periods when new dwelling approvals were in decline (2016-2019), demonstrates a clear disconnect between these two trends. This indicates that focusing on residential construction alone would not be sufficient to understand or manage the overall C&D waste problem.
+
+
+
+##### **e. Natural Disasters**
+
+Another factor that may influence C&D waste is the occurrence of natural disasters, which often cause damage to buildings and infrastructure. Using a disaster dataset (sourced from EM-DAT),
+
+To check this we use data of **Australia disaster events** from **data.gov.au**. we analyze by creating category impacts cleaned and aggregated records from 2005 to 2020. 
+The first plot shows the yearly frequency of disaster events, while a second set of faceted line graphs illustrates yearly counts of damaged and destroyed assets such as homes, buildings, and bridges. These visualisations highlight that spikes in disasters correspond to higher damage to built assets, which in turn may increase demolition waste due to reconstruction activities.
+
+```{r disaster}
+
+# Convert the 'endDate' column to a proper date format.
+disaster_dt$endDate <- as.Date(disaster_dt$endDate, format = "%m/%d/%Y %H:%M")
+
+#Extract the year from the 'endDate' column and create a new 'year' column.
+disaster_dt$year <- as.integer(format(disaster_dt$endDate, "%Y"))
+
+#Filter the data to include only the years from 2005 to 2020.
+filtered_disaster_dt <- disaster_dt %>%
+  filter(year >= 2005 & year <= 2020)
+
+#Group the filtered data by year and count the number of disasters.
+yearly_disaster_count <- filtered_disaster_dt %>%
+  group_by(year) %>%
+  summarise(number_of_disasters = n()) %>% # n() counts the number of rows (disasters) in each group
+  ungroup() %>%
+  # Filter out rows where the year is NA
+  filter(!is.na(year))
+
+#Ensure all years from 2005 to 2020 are in the data
+all_years <- data.frame(year = 2005:2020)
+yearly_disaster_count <- left_join(all_years, yearly_disaster_count, by = "year")
+yearly_disaster_count[is.na(yearly_disaster_count)] <- 0
+
+
+#Create a line graph to visualize the yearly trend of disaster strikes.
+ggplot(yearly_disaster_count, aes(x = year, y = number_of_disasters)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_point(color = "red", size = 3) +
+  labs(
+    title = "Yearly Trend of Disaster Strikes (2005-2020)",
+    x = "Year",
+    y = "Number of Disasters"
+  ) +
+  theme_gray() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  # Set the x-axis breaks at 5-year intervals for a clean look
+  scale_x_continuous(breaks = seq(2005, 2020, by = 5))
+
+
+
+```
+Instead of displaying a consistent trend, the line graph displays a rather inconsistent pattern.  The annual number of disasters varies greatly, with notable spikes in 2005, 2011, and 2013.  After 2014, there was a significant shift as the number of disaster hits fell to zero and stayed there until 2020.  This suggests that during this time, significant disaster events were not a regular, annual occurrence and almost stopped in the second half of the dataset.
+
+
+```{r}
+
+#Convert the 'endDate' column to a proper date format.
+disaster_dt$endDate <- as.Date(disaster_dt$endDate, format = "%m/%d/%Y %H:%M")
+
+#Extract the year from the 'endDate' column and create a new 'year' column.
+disaster_dt$year <- as.integer(format(disaster_dt$endDate, "%Y"))
+
+#Filter the data to include only the years from 2005 to 2020.
+filtered_disaster_dt <- disaster_dt %>%
+  filter(year >= 2005 & year <= 2020)
+
+
+# Group the filtered data by year and sum the specified columns.
+yearly_damaged_assets <- filtered_disaster_dt %>%
+  group_by(year) %>%
+  summarise(
+    Home_Damaged = sum(replace(Home.s..damaged, is.na(Home.s..damaged), 0)),
+    Home_Destroyed = sum(replace(Home.s..destroyed, is.na(Home.s..destroyed), 0)),
+    Building_Damaged = sum(replace(Building.s..damaged, is.na(Building.s..damaged), 0)),
+    Building_Destroyed = sum(replace(Building.s..destroyed, is.na(Building.s..destroyed), 0)),
+    Bridge_Damaged = sum(replace(Bridge.s..damaged, is.na(Bridge.s..damaged), 0)),
+    Bridge_Destroyed = sum(replace(Bridge.s..destroyed, is.na(Bridge.s..destroyed), 0))
+  ) %>%
+  ungroup() %>%
+  # Filter out rows where the year is NA
+  filter(!is.na(year))
+
+# Reshape the data from wide to long format for plotting.
+long_data <- yearly_damaged_assets %>%
+  pivot_longer(
+    cols = c(Home_Damaged, Home_Destroyed, Building_Damaged, Building_Destroyed, Bridge_Damaged, Bridge_Destroyed),
+    names_to = "Asset_Type",
+    values_to = "Total_Count"
+  )
+
+
+#Create a multi-line graph with separate panels for each asset type using facet_wrap.
+ggplot(long_data, aes(x = year, y = Total_Count, color = Asset_Type)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Damaged and Destroyed Assets (2005-2020)",
+    x = "Year",
+    y = "Total Number",
+    color = "Asset Type"
+  ) +
+  theme_gray() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  # Use facet_wrap to create a grid of plots, one for each Asset_Type.
+  # scales = "free_y" is crucial here to allow each panel to have its own y-axis scale.
+  facet_wrap(~ Asset_Type, scales = "free_y", ncol = 2) +
+  # This line sets the x-axis breaks at 5-year intervals
+  scale_x_continuous(breaks = seq(2005, 2020, by = 5))
+```
+
+The line graphs show that the quantity of damaged and destroyed assets changes a lot, with clear spikes in certain years instead of a continuous trend.  The statistics for homes, buildings, and bridges all reveal that for most years, the number of damaged or destroyed assets is very low or at zero.   But there are big and rapid spikes that happen at the same time as big occurrences. For example, there was a big rise in damaged residences around 2010 and a big rise in damaged structures around 2011.  This means that the destruction and loss of assets don't happen every year; instead, they happen when there are big disasters that generate a transient but huge increase in waste.
+
+
+When we compare them with the C&D waste graph, we see that there is no direct correlation between disaster strikes and the total volume of Construction and Demolition (C&D) waste. The trends of each are distinct, which suggests that other factors are the primary drivers of waste generation.
+
+Because compared to the previous to graph, the graph for "Yearly Trend of Total C&D Waste" shows a completely different story. After a period of stability, it exhibits a continuous and dramatic upward trajectory from 2013 to 2020. This consistent increase, even during years when the number of disaster strikes was in decline, indicates that the bulk of C&D waste is generated by sources other than natural disasters. The data suggests that major ongoing construction projects, such as large-scale infrastructure and urban development, are the primary cause of the steadily rising waste volume.
+
+**AI Acknowledgement**
+I acknowledge the use of Gemini AI (https://gemini.google.com/) to find the external data to answer question number 9, i also use it to find the error in my script, when it is not running. 
+
+\newpage
+
+### Reference
+
+
+Australian Bureau of Statistics. (2023). National, state and territory population, March 2023. https://www.abs.gov.au/statistics/people/population/national-state-and-territory-population/mar-2023
+
+Australian Bureau of Statistics. (2025). Building approvals, Australia, June 2025. https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/latest-release
+
+Department of Climate Change, Energy, the Environment and Water. (2022). National waste report 2022. https://www.dcceew.gov.au/environment/protection/waste/national-waste-reports/2022
+
+Department of Home Affairs. (2025). Disaster events with category impact and location. https://data.gov.au/data/dataset/26e2ebff-6cd5-4631-9653-18b56526e354

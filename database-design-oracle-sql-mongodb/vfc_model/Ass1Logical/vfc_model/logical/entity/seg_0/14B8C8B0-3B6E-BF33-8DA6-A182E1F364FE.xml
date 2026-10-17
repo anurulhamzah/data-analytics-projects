@@ -1,0 +1,166 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="14B8C8B0-3B6E-BF33-8DA6-A182E1F364FE" name="Staff">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="staff_id" id="E6B38C24-8E96-1256-CF6E-0116FB5A9733">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:17 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff unique Identity]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_id" id="0F0B97D1-9156-53A3-E524-816E7BE8EB7A">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 09:35:41 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre unique identity]]></commentInRDBMS>
+<generatorID>16F8E9D2-3990-ABCB-6E5A-C67178D97522</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>C8D79D51-6573-7990-E446-94FCA4C2BBBB</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_fname" id="5D7279E5-B699-C010-82A2-B2F98BA76BA0">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:17 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff First Name]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>15</dataTypeSize>
+<ownDataTypeParameters>15,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_lname" id="15F6D866-B9A9-7A83-B2C6-D7CD483EE34F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:18 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff Last Name]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>15</dataTypeSize>
+<ownDataTypeParameters>15,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_mobile_no" id="45562666-7C94-3753-67F1-ED98A4DDCCF1">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:18 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff contact number]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>15</dataTypeSize>
+<ownDataTypeParameters>15,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_start_date" id="92455C0D-7A76-CE93-0699-76598F3A0F8A">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:18 UTC</createdTime>
+<commentInRDBMS><![CDATA[date of staff first recruited]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="staff_role" id="B8A57BAB-AF00-9ADA-23DE-CDAFE96EF705">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:18 UTC</createdTime>
+<commentInRDBMS><![CDATA[Staff role]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<dataTypeSize>1</dataTypeSize>
+<listOfValues>
+<valueDef value="A" description="Administration"/>
+<valueDef value="C" description="Cleaner"/>
+<valueDef value="D" description="Instructor Dry"/>
+<valueDef value="M" description="Manager"/>
+<valueDef value="P" description="Instructor Pool"/>
+<valueDef value="S" description="Security"/>
+</listOfValues>
+<ownDataTypeParameters>1,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_leader" id="66FDC5E1-4C4D-3521-F508-BDBC30BEC8BC">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:19 UTC</createdTime>
+<commentInRDBMS><![CDATA[Leader status]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT006</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="first_aid_certified" id="67A00574-B316-69C5-265C-5CC6FD78FC0D">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:36:19 UTC</createdTime>
+<commentInRDBMS><![CDATA[First Aid Certified]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT006</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="07E64FE1-95FA-1905-B2CC-9AA3F7FC1B23" name="Staff PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>E6B38C24-8E96-1256-CF6E-0116FB5A9733</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

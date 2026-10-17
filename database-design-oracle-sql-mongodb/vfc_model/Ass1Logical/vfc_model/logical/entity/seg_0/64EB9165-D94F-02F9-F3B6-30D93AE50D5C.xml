@@ -1,0 +1,133 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="64EB9165-D94F-02F9-F3B6-30D93AE50D5C" name="Facility">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="fac_id" id="B9B0FF20-C0CC-94CE-96E5-2C91C4FCE4DE">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:50:00 UTC</createdTime>
+<commentInRDBMS><![CDATA[Facility unique identity across VFC]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fac_room_no" id="0293D4D0-A5BC-CECD-3824-8E3CDF26A57A">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:33:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Facility room number]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fac_name" id="A17ABBF2-6665-149A-AA15-48EB3DC81190">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:33:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[facility name]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fac_description" id="A15D6C02-5BB3-15E7-956B-0A26853693A2">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:33:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Facility Description]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="fac_capacity" id="263315C1-BC45-973D-AB9E-03206BBF228B">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 11:33:38 UTC</createdTime>
+<commentInRDBMS><![CDATA[the max capacity of the facility]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="centre_id" id="F74F4DFC-C33C-A106-9BAE-BE322F227CF7">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 03:21:35 UTC</createdTime>
+<commentInRDBMS><![CDATA[Centre unique identity]]></commentInRDBMS>
+<generatorID>DBBE02B9-E623-EEF0-032B-A5C4D2958304</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>C8D79D51-6573-7990-E446-94FCA4C2BBBB</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="1CBAA826-4826-FA9A-0E3B-EA0894EC6ABA" name="Facility PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:43:01 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<newElementsIDs>B9B0FF20-C0CC-94CE-96E5-2C91C4FCE4DE</newElementsIDs>
+<usedAttributes>
+<attributeRef>B9B0FF20-C0CC-94CE-96E5-2C91C4FCE4DE</attributeRef>
+</usedAttributes>
+</identifier>
+<identifier id="7D892F1C-2FB9-41E6-1175-F2E5AE121820" name="Facility NK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:50:33 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<newElementsIDs>0293D4D0-A5BC-CECD-3824-8E3CDF26A57A,DBBE02B9-E623-EEF0-032B-A5C4D2958304</newElementsIDs>
+<usedAttributes>
+<attributeRef>0293D4D0-A5BC-CECD-3824-8E3CDF26A57A</attributeRef>
+<attributeRef>F74F4DFC-C33C-A106-9BAE-BE322F227CF7</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

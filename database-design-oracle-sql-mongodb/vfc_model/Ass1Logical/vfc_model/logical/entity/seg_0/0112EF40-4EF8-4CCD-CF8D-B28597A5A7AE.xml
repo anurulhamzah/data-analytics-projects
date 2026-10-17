@@ -1,0 +1,108 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="0112EF40-4EF8-4CCD-CF8D-B28597A5A7AE" name="ClassRegistration">
+<createdBy>user</createdBy>
+<createdTime>2024-10-26 13:45:44 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="class_reg_id" id="5E94A997-696A-8F72-DE45-93C215306685">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 13:46:29 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class Registration unique identity]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="payment_date" id="662C70E2-7012-0387-F537-2BCB59212349">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 13:55:10 UTC</createdTime>
+<commentInRDBMS><![CDATA[Payment date]]></commentInRDBMS>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="member_id" id="8CBBBFF0-E35B-DC13-4498-4B2E52F2E596">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 15:34:13 UTC</createdTime>
+<commentInRDBMS><![CDATA[Unique identity for member]]></commentInRDBMS>
+<generatorID>58F609E1-027A-5560-BE53-3C8DE327953F</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>DF3FE909-F402-E41E-C2C8-B285054B0208</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="class_id" id="913259F3-FBB6-9B43-A7B4-2AC3B427EE3F">
+<createdBy>user</createdBy>
+<createdTime>2024-10-28 07:53:37 UTC</createdTime>
+<commentInRDBMS><![CDATA[Class unique identity across VFC]]></commentInRDBMS>
+<generatorID>09785573-4DAD-4E0F-A4D2-0BBC6437446A</generatorID>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<referedAttribute>56D6C486-20D2-D0A0-0798-D769A8D3BCFF</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="EFF4B373-E166-EAC5-89B0-9712083FFCA8" name="ClassRegistration PK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 13:47:06 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<newElementsIDs>5E94A997-696A-8F72-DE45-93C215306685</newElementsIDs>
+<usedAttributes>
+<attributeRef>5E94A997-696A-8F72-DE45-93C215306685</attributeRef>
+</usedAttributes>
+</identifier>
+<identifier id="337C04BE-0CD1-6D55-5879-E044523000FE" name="ClassRegistration NK">
+<createdBy>user</createdBy>
+<createdTime>2024-10-27 15:41:52 UTC</createdTime>
+<ownerDesignName>vfc_model</ownerDesignName>
+<engineerTo>
+<item key="05B61160-0838-5904-5EC3-A9513A63000B" value="true"/>
+</engineerTo>
+<newElementsIDs>662C70E2-7012-0387-F537-2BCB59212349,58F609E1-027A-5560-BE53-3C8DE327953F,09785573-4DAD-4E0F-A4D2-0BBC6437446A</newElementsIDs>
+<usedAttributes>
+<attributeRef>662C70E2-7012-0387-F537-2BCB59212349</attributeRef>
+<attributeRef>8CBBBFF0-E35B-DC13-4498-4B2E52F2E596</attributeRef>
+<attributeRef>913259F3-FBB6-9B43-A7B4-2AC3B427EE3F</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

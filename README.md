@@ -7,7 +7,7 @@ Projects in machine learning, data engineering, statistics, databases and busine
 | [student-retention-prediction](student-retention-prediction) | Dropout prediction with three models | Python, scikit-learn, XGBoost |
 | [climate-causal-analysis](climate-causal-analysis) | Causal analysis of climate-adaptation strategies | R, mixed models, GAM, causal forests |
 | [bayesian-network-and-crf](bayesian-network-and-crf) | Bayesian-network sensitivity analysis and a CRF event tagger (team) | Python, pgmpy, CRF |
-| [food-security-dashboard](food-security-dashboard) | Food security dashboard for Indonesia (team) | R Shiny, GWR, ARIMA |
+| [food-security-dashboard](food-security-dashboard) | Food security dashboard for Indonesia (team), [live app](https://anurulhamzah.shinyapps.io/food-security-dashboard-indonesia/) | R Shiny, GWR, ARIMA |
 | [kafka-spark-streaming-pipeline](kafka-spark-streaming-pipeline) | Real-time Kafka and Spark Structured Streaming pipeline (team) | Python, Kafka, Spark |
 | [building-energy-prediction-spark](building-energy-prediction-spark) | Energy prediction models in PySpark (team) | Python, PySpark |
 | [text-data-wrangling-pipeline](text-data-wrangling-pipeline) | Parsing, cleaning and vectorising review text (team) | Python |

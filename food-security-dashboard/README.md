@@ -2,7 +2,7 @@
 
 Team project (team of 3), 2025. R Shiny, geographically weighted regression, ARIMA.
 
-An interactive dashboard for policymakers and analysts with three tabs: a general overview of food security index, stunting, undernourishment and poverty trends (2018-2024); a policy-focus tab using geographically weighted regression to show which socioeconomic variables drive food security locally; and a projections tab with ARIMA forecasts to 2029 against national targets (food security index of at least 82, undernourishment of at most 4.41%). Data are at regency and city level. The design follows the Five Design Sheets framework.
+An interactive dashboard for policymakers and analysts with seven tabs: an overview of the research questions; a general overview of food security index, stunting, poverty and undernourishment trends (2018-2024) with a district map; a global comparison on the Global Food Security Index; a policy-focus tab using geographically weighted regression to show which socioeconomic variables drive food security locally, plus PCA and K-Means clusters of districts; government spending (agricultural subsidies against the food security index); future projections, with ARIMA forecasts of the food security index, stunting and undernourishment for 2025-2030 against 2030 goals (food security index 85, stunting 14%, undernourishment 5%); and a system-status tab with data-quality checks. Data are at regency and city level. The design follows the Five Design Sheets framework.
 
 **Not included:** the datasets and boundary file the app reads (`gfsi_full_dataset.csv`, `all_kabkota_ind.geojson`, `combined_data.csv`, `dataset_all.csv`), because their licences are unclear, so the app does not run from this repository alone. There is no hosted version yet.
 

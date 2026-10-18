@@ -1,42 +1,27 @@
-# ----- Load Libraries -----####
-
-# Ensure all required packages are available
-required_packages <- c(
-  "shiny", "shinydashboard", "shinyWidgets", "DT", "tidyverse", "tidyr", "sf", 
-  "leaflet", "rnaturalearth", "maps", "dplyr", "leaflet.extras", "readxl", 
-  "plotly", "htmltools", "GGally", "GWmodel", "shinycssloaders", "cluster", 
-  "factoextra", "FactoMineR", "ggplot2", "RColorBrewer", "shinythemes", 
-  "stringr", "scales", "janitor", "ggrepel", "devtools", "patchwork", 
-  "forecast", "viridis", "purrr", "tseries", "shinyBS"
-)
-
-# Function to check and install packages if not already installed
-install_if_missing <- function(packages) {
-  for (pkg in packages) {
-    # Suppress messages and warnings during package loading
-    suppressPackageStartupMessages({
-      if (!requireNamespace(pkg, quietly = TRUE)) {
-        install.packages(pkg)
-      }
-      library(pkg, character.only = TRUE, quietly = TRUE)
-    })
-  }
-}
-install_if_missing(required_packages)
-
-# Alternative for ggradar package: Install from R-Forge
-# Note: R-Forge can be unreliable. If this fails, consider finding an alternative or installing from GitHub.
-if (!requireNamespace("purrr", quietly = TRUE)) {
-  tryCatch({
-    install.packages("purrr", repos = "http://R-Forge.R-project.org")
-  }, error = function(e) {
-    message("Could not install ggradar from R-Forge. Please try installing from GitHub if needed: devtools::install_github('ricardo-bion/ggradar', dependencies = TRUE)")
-  })
-}
-#library(ggradar)
-
-
-
+# Food security and vulnerability dashboard, Indonesia (2018-2024).
+# Packages are attached statically (not installed at run time) so the app can be deployed
+# to hosting such as shinyapps.io. Order follows the original load order.
+library(shiny)
+library(shinydashboard)
+library(DT)
+library(tidyr)
+library(sf)
+library(leaflet)
+library(dplyr)
+library(plotly)
+library(htmltools)
+library(GWmodel)
+library(shinycssloaders)
+library(cluster)
+library(factoextra)
+library(FactoMineR)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+library(scales)
+library(janitor)
+library(forecast)
+library(purrr)
 # ----- Load Data -----####
 #Using relative paths for portability. Place data files in the same directory as the app.
 geojson_path <- "all_kabkota_ind.geojson"
@@ -1200,7 +1185,8 @@ server <- function(input, output, session) {
     )
   })
   
-  output$map <- renderLeaflet({ leaflet() %>% addProviderTiles(providers$CartoDB.Positron) %>% setView(lng = 118, lat = -2, zoom = 5) })
+  output$map <- renderLeaflet({ leaflet() %>% addTiles() %>% setView(lng = 118, lat = -2, zoom = 5) })
+  outputOptions(output, "map", suspendWhenHidden = FALSE)  # render at start so the polygon observer's leafletProxy calls are not lost while the tab is hidden
   
   observe({
     data_map_obs <- year_filtered_data() %>% select(provinsi, kabkota, indicator_col = !!sym(input$indicator), geometry) %>% filter(!is.na(indicator_col))

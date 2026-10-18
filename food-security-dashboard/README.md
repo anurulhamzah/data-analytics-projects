@@ -7,3 +7,5 @@ An interactive dashboard for policymakers and analysts with three tabs: a genera
 **Not included:** the datasets and boundary file the app reads (`gfsi_full_dataset.csv`, `all_kabkota_ind.geojson`, `combined_data.csv`, `dataset_all.csv`), because their licences are unclear, so the app does not run from this repository alone. There is no hosted version yet.
 
 **Files:** `Dashboard.R` (the Shiny app), `USER_GUIDE.md` (user guide).
+
+Changes made when preparing the code for hosting: packages are attached with `library()` instead of being installed at run time; the overview map uses OpenStreetMap tiles instead of a provider that now requires an API key; and the map is rendered at start so the district polygons draw on first view.

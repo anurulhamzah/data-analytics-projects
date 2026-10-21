@@ -1,7 +1,17 @@
-﻿@
 *.log
 .DS_Store
 Thumbs.db
 __pycache__/
 .ipynb_checkpoints/
-
+# credentials and local config: never commit
+.env
+.env.*
+*.pem
+*.key
+*.p12
+id_rsa*
+.Renviron
+.Rprofile
+rsconnect/
+credentials*
+secrets.*

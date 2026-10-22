@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monitoring Proses Editorial</title>
+<style>
+:root{--forest:#1D3A2B;--moss:#5F9D7F;--rust:#B4502A;--muted:#55645C;--line:#D5DDD3;--tint:#EEF2EC;--amber:#B58A3A;--ink:#1D2B24;--grey:#8A9A91;--soft:#F4F8F2;--warn:#FBEFE9}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:#fff;color:var(--ink);font:15px/1.45 "Segoe UI",Calibri,Arial,sans-serif}
+h1,h2,h3{font-family:Cambria,Georgia,serif;color:var(--forest);margin:0}
+header{padding:18px 28px 10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+header h1{font-size:26px}
+header .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{font:inherit;font-size:13px;border:1px solid var(--forest);background:#fff;color:var(--forest);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover,.btn:hover{background:var(--tint)}
+button.primary{background:var(--forest);color:#fff}
+button.primary:hover{background:#2a5640}
+#filters{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;padding:10px 28px;background:var(--soft);border-bottom:1px solid var(--line);font-size:13px}
+#filters label{display:flex;gap:6px;align-items:center;color:var(--muted)}
+select,input[type=number],input[type=search]{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:#fff;color:var(--ink)}
+input[type=number]{width:76px}
+nav{display:flex;gap:2px;flex-wrap:wrap;padding:0 28px;border-bottom:1px solid var(--line)}
+nav a{padding:10px 14px;color:var(--muted);text-decoration:none;font-size:14px;border-bottom:3px solid transparent;cursor:pointer}
+nav a.on{color:var(--forest);border-bottom-color:var(--forest);font-weight:600}
+main{padding:20px 28px 40px;max-width:1280px;margin:0 auto}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.nw{white-space:nowrap}
+.two{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h3{font-size:16px;margin-bottom:2px}
+.card .note{color:var(--muted);font-size:12.5px;margin:0 0 8px}
+.kpi{background:var(--tint);border-radius:12px;padding:12px 14px}
+.kpi .v{font:600 30px Cambria,Georgia,serif;color:var(--forest)}
+.kpi .v.bad{color:var(--rust)}
+.kpi .l{font-size:12.5px;color:var(--ink)}
+.kpi .s{font-size:11.5px;color:var(--muted)}
+.insight{background:var(--soft);border:1.5px solid var(--forest);border-radius:10px;padding:10px 14px;margin:14px 0;font-size:14px}
+.insight b{color:var(--forest)}
+.warn{background:var(--warn);border-radius:10px;padding:10px 14px;margin:14px 0;font-size:13.5px}
+.warn b{color:var(--rust)}
+svg{width:100%;height:auto;display:block}
+svg text{font-family:"Segoe UI",Calibri,Arial,sans-serif;fill:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:var(--forest);color:#fff;text-align:left;padding:7px 10px;font-weight:600;white-space:nowrap;cursor:pointer;position:sticky;top:0}
+td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#FAFCF9}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+th.num{text-align:right}
+.badge{display:inline-block;border-radius:10px;padding:1px 9px;font-size:12px;white-space:nowrap}
+.b-bad{background:var(--warn);color:var(--rust)}
+.b-mid{background:#FFF4DA;color:#7a5a12}
+.b-ok{background:var(--tint);color:var(--forest)}
+.b-n{background:#E9ECE8;color:var(--muted)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.pager{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
+#tip{position:fixed;pointer-events:none;background:#1D2B24;color:#fff;border-radius:6px;padding:5px 9px;font-size:12px;display:none;z-index:9;max-width:320px}
+#err{display:none;background:#FBEFE9;color:#B4502A;padding:10px 28px;font-size:13px}
+#toast{position:fixed;right:18px;bottom:18px;background:var(--forest);color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;display:none;z-index:10}
+footer{padding:14px 28px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.steps li{margin:4px 0}
+code{background:var(--tint);padding:1px 5px;border-radius:4px;font-size:12.5px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:700px){main,header,#filters,nav{padding-left:14px;padding-right:14px}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="err"></div>
+<header>
+  <div>
+    <h1 id="jname">Monitoring Proses Editorial</h1>
+    <div class="sub" id="meta"></div>
+  </div>
+  <div class="btns">
+    <button class="primary" id="btnLoad">Muat data baru</button>
+    <button id="btnSave">Unduh data (JSON)</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+  </div>
+</header>
+<div id="filters">
+  <label>Naskah masuk dari <select id="yFrom"></select></label>
+  <label>sampai <select id="yTo"></select></label>
+  <label>Target lama proses <input type="number" id="target" min="30" max="720" step="10"> hari</label>
+  <label>Umur naskah berjalan dihitung dari
+    <select id="ageRef"><option value="data">tanggal data</option><option value="today">hari ini</option></select></label>
+  <label title="Item Front-matter dan Back-matter tercatat OJS sebagai naskah, tetapi bukan artikel"><input type="checkbox" id="incNA"> sertakan front/back matter (bukan artikel)</label>
+  <span id="fnote" style="color:var(--muted)"></span>
+</div>
+<nav id="tabs"></nav>
+<main id="view"></main>
+<footer id="foot"></footer>
+<div id="tip"></div><div id="toast"></div>
+
+<script>
+const DATA0 = /*__DATA__*/null;
+</script>
+<script>
+(function(){
+'use strict';
+window.addEventListener('error',function(e){var x=document.getElementById('err');x.style.display='block';x.textContent='Kesalahan skrip: '+e.message+' (baris '+e.lineno+')';});
+
+/* ---------- konstanta & util ---------- */
+var C={forest:'#1D3A2B',moss:'#5F9D7F',rust:'#B4502A',muted:'#55645C',line:'#D5DDD3',grey:'#8A9A91',amber:'#B58A3A',light:'#E4EAE0',ink:'#1D2B24'};
+var FLAGS={n:'tanpa keputusan',w:'terbit tanpa tanggal',o:'tanggal janggal',s:'decline pada terbit',b:'kode tanpa label'};
+function flagTxt(s){var a=s.q.split('').map(function(c){return FLAGS[c];});if(s.na)a.unshift('bukan artikel');return a.join('; ');}
+var EVL={SR:'Dikirim ke review',RV:'Diminta revisi',RS:'Review ulang',AC:'Diterima (Accept)',SP:'Dikirim ke produksi',DS:'Ditolak (penyaringan awal)',DR:'Ditolak (setelah review)'};
+var STG={1:'Penyaringan awal',3:'Review',4:'Copyediting',5:'Production'};
+var STAT={P:'Terbit',D:'Ditolak',Q:'Berjalan'};
+var TABS_ALL=[['ringkasan','Ringkasan'],['lama','Lama proses'],['berjalan','Naskah berjalan'],['review','Review dan penolakan'],['beban','Beban editor'],['kualitas','Kualitas data'],['data','Data dan pembaruan']],TABS=TABS_ALL;
+var DATA=null, ST={yFrom:2019,yTo:2026,target:180,age:'data',tab:'ringkasan',incNA:false}, TBL={};
+var $=function(s,r){return (r||document).querySelector(s);};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+var num=function(n,d){d=d||0;return (n==null||!isFinite(n))?'-':Number(n).toLocaleString('id-ID',{maximumFractionDigits:d,minimumFractionDigits:d});};
+var pct=function(a,b){return b?100*a/b:null;};
+function quantile(a,q){if(!a.length)return null;var s=a.slice().sort(function(x,y){return x-y;}),p=(s.length-1)*q,i=Math.floor(p),f=p-i;return s[i]+(s[Math.min(i+1,s.length-1)]-s[i])*f;}
+var median=function(a){return quantile(a,.5);};
+var dayDiff=function(a,b){return Math.round((Date.parse(b)-Date.parse(a))/864e5);};
+function groupBy(arr,fn){var m={};arr.forEach(function(x){var k=fn(x);if(k==null)return;(m[k]=m[k]||[]).push(x);});return m;}
+var keysAsc=function(m){return Object.keys(m).sort(function(a,b){return a-b;});};
+var vals=function(a,k){return a.map(function(x){return x[k];}).filter(function(v){return v!=null;});};
+function niceMax(v){if(v<=0)return 1;var p=Math.pow(10,Math.floor(Math.log10(v))),f=v/p;var n=f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10;return n*p;}
+
+/* ---------- data & filter ---------- */
+function subsF(){return DATA.submissions.filter(function(s){return s.y>=ST.yFrom&&s.y<=ST.yTo&&(ST.incNA||!s.na);});}
+function scopeOf(a){return a.filter(function(s){return s.st==='P'&&s.sc===1&&s.d!=null&&(ST.incNA||!s.na);});}
+var pubYear=function(s){return s.pd?+s.pd.slice(0,4):null;};
+function refDate(){return ST.age==='today'?new Date().toISOString().slice(0,10):DATA.meta.as_of;}
+function ageOf(s){return dayDiff(s.sd,refDate());}
+function setData(d){
+  if(!d||!d.meta||!Array.isArray(d.submissions))throw new Error('Berkas tidak sesuai format dashboard.');
+  DATA=d;
+  if(d.meta.journal){document.title='Monitoring Proses Editorial '+d.meta.journal;$('#jname').textContent='Monitoring Proses Editorial '+d.meta.journal;}
+  TABS=TABS_ALL.filter(function(x){return !(d.meta.hide_editors&&x[0]==='beban');});if(!TABS.some(function(x){return x[0]===ST.tab;}))ST.tab='ringkasan';
+  var ys=d.submissions.map(function(s){return s.y;});var mn=Math.min.apply(null,ys),mx=Math.max.apply(null,ys);
+  ST.yFrom=Math.max(mn,2019);ST.yTo=mx;ST.target=d.meta.target_days||180;ST.incNA=false;$('#incNA').checked=false;
+  var opts=''; for(var y=mn;y<=mx;y++)opts+='<option>'+y+'</option>';
+  $('#yFrom').innerHTML=opts;$('#yTo').innerHTML=opts;$('#yFrom').value=ST.yFrom;$('#yTo').value=ST.yTo;$('#target').value=ST.target;
+  $('#meta').textContent='Sumber: '+d.meta.source+'  |  data per '+d.meta.as_of+'  |  dibuat '+d.meta.generated+'  |  '+num(d.meta.n_submissions)+' naskah'+(d.meta.public?'  |  versi dewan editor (tanpa judul naskah)':'');
+  $('#foot').textContent='Lama proses dihitung dari tanggal naskah masuk (submit) sampai tanggal terbit. Hasil menunjukkan pola, bukan bukti penyebab, dan bukan penilaian kinerja individu.';
+  TBL={};
+}
+
+/* ---------- tooltip ---------- */
+var tip=$('#tip');
+document.addEventListener('mousemove',function(e){var t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.style.display='none';return;}tip.textContent=t.getAttribute('data-tip');tip.style.display='block';var x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+16)+'px';});
+
+/* ---------- grafik SVG ---------- */
+function niceStep(v){var p=Math.pow(10,Math.floor(Math.log10(v))),f=v/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
+function scaleOf(raw){var st=niceStep(raw/4);return {max:Math.ceil(raw/st-1e-9)*st,step:st};}
+function axisY(m,iw,ih,max,unit,w,step){var s='';step=step||max/4;for(var v=0;v<=max+1e-9;v+=step){var y=m.t+ih-ih*v/max;s+='<line x1="'+m.l+'" x2="'+(w-m.r)+'" y1="'+y+'" y2="'+y+'" stroke="'+C.line+'"/><text x="'+(m.l-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="'+C.muted+'">'+num(v,step%1?1:0)+(unit||'')+'</text>';}return s;}
+function legend(series){return '<div class="legend">'+series.map(function(s){return '<span><i style="background:'+s.color+'"></i>'+esc(s.name)+'</span>';}).join('')+'</div>';}
+function barChart(o){
+  var w=o.w||760,h=o.h||280,m={l:46,r:o.ref?96:14,t:22,b:o.sub?50:32},iw=w-m.l-m.r,ih=h-m.t-m.b,L=o.labels,S=o.series;
+  var tot=L.map(function(_,i){return o.stacked?S.reduce(function(a,s){return a+(s.values[i]||0);},0):Math.max.apply(null,S.map(function(s){return s.values[i]||0;}));});
+  var sc=o.max?{max:o.max,step:o.max/4}:scaleOf(Math.max.apply(null,tot.concat([o.ref?o.ref.value:0,1]))*1.04),max=sc.max,out='',gw=iw/L.length,bw=o.stacked?Math.min(46,gw*.6):Math.min(40,gw*.7/S.length);
+  out+=axisY(m,iw,ih,max,o.unit,w,sc.step);
+  L.forEach(function(lb,i){var cx=m.l+gw*(i+.5),acc=0;
+    S.forEach(function(s,j){var v=s.values[i];if(v==null)return;var x=o.stacked?cx-bw/2:cx-bw*S.length/2+j*bw,bh=ih*v/max,y=o.stacked?m.t+ih-ih*acc/max-bh:m.t+ih-bh;
+      out+='<rect x="'+x+'" y="'+y+'" width="'+(bw-1)+'" height="'+Math.max(bh,0)+'" fill="'+(s.colors&&s.colors[i]||s.color)+'" rx="2" data-tip="'+esc(lb+' | '+s.name+': '+num(v,o.dec||0)+(o.unit||''))+'"/>';
+      if(!o.stacked&&S.length<3&&bw>14)out+='<text x="'+(x+bw/2-.5)+'" y="'+(y-4)+'" text-anchor="middle" font-size="11" font-weight="600">'+num(v,o.dec||0)+(o.unit||'')+'</text>';
+      acc+=v;});
+    out+='<text x="'+cx+'" y="'+(h-m.b+16)+'" text-anchor="middle" font-size="11.5">'+esc(lb)+'</text>';
+    if(o.sub&&o.sub[i]!=null)out+='<text x="'+cx+'" y="'+(h-m.b+30)+'" text-anchor="middle" font-size="10.5" fill="'+C.muted+'">'+esc(o.sub[i])+'</text>';});
+  if(o.ref){var y=m.t+ih-ih*o.ref.value/max;out+='<line x1="'+m.l+'" x2="'+(w-m.r)+'" y1="'+y+'" y2="'+y+'" stroke="'+C.rust+'" stroke-dasharray="5 4" stroke-width="1.4"/><text x="'+(w-m.r+4)+'" y="'+(y+4)+'" font-size="11" fill="'+C.rust+'">'+esc(o.ref.label)+'</text>';}
+  return (S.length>1?legend(S):'')+'<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(o.aria||'grafik batang')+'">'+out+'</svg>';
+}
+function lineChart(o){
+  var w=o.w||760,h=o.h||260,m={l:46,r:o.ref?96:16,t:22,b:30},iw=w-m.l-m.r,ih=h-m.t-m.b,L=o.labels,S=o.series;
+  var all=[].concat.apply([],S.map(function(s){return s.values.filter(function(v){return v!=null;});}));
+  var sc=o.max?{max:o.max,step:o.max/4}:scaleOf(Math.max.apply(null,all.concat([o.ref?o.ref.value:0,1]))*1.08),max=sc.max,out=axisY(m,iw,ih,max,o.unit,w,sc.step);
+  var X=function(i){return m.l+iw*(i+.5)/L.length;},Y=function(v){return m.t+ih-ih*v/max;};
+  L.forEach(function(lb,i){out+='<text x="'+X(i)+'" y="'+(h-8)+'" text-anchor="middle" font-size="11.5">'+esc(lb)+'</text>';});
+  S.forEach(function(s){var d='',pen=false;s.values.forEach(function(v,i){if(v==null){pen=false;return;}d+=(pen?'L':'M')+X(i)+' '+Y(v)+' ';pen=true;});
+    out+='<path d="'+d+'" fill="none" stroke="'+s.color+'" stroke-width="2.4"/>';
+    s.values.forEach(function(v,i){if(v==null)return;out+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="4" fill="'+s.color+'" data-tip="'+esc(L[i]+' | '+s.name+': '+num(v,o.dec||0)+(o.unit||''))+'"/>';
+      if(s.labels)out+='<text x="'+X(i)+'" y="'+(Y(v)-9)+'" text-anchor="middle" font-size="11" font-weight="600">'+num(v,o.dec||0)+(o.unit||'')+'</text>';});});
+  if(o.ref){var y=Y(o.ref.value);out+='<line x1="'+m.l+'" x2="'+(w-m.r)+'" y1="'+y+'" y2="'+y+'" stroke="'+C.rust+'" stroke-dasharray="5 4" stroke-width="1.4"/><text x="'+(w-m.r+4)+'" y="'+(y+4)+'" font-size="11" fill="'+C.rust+'">'+esc(o.ref.label)+'</text>';}
+  return (S.length>1?legend(S):'')+'<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(o.aria||'grafik garis')+'">'+out+'</svg>';
+}
+function boxChart(o){
+  var w=o.w||900,h=o.h||330,m={l:50,r:100,t:30,b:o.bands?56:34},iw=w-m.l-m.r,ih=h-m.t-m.b,G=o.groups;
+  var all=[].concat.apply([],G.map(function(g){return g.items.map(function(i){return i.v;});}));
+  var rawMax=Math.max.apply(null,all.concat([o.target,1]))*1.04,tstep=rawMax>800?200:100,max=Math.ceil(rawMax/tstep)*tstep,Y=function(v){return m.t+ih-ih*v/max;},out='';
+  for(var t=0;t<=max+1e-9;t+=tstep){var yy=Y(t);out+='<line x1="'+m.l+'" x2="'+(w-m.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+C.line+'"/><text x="'+(m.l-6)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="'+C.muted+'">'+num(t)+'</text>';}
+  var bw=Math.min(46,iw/G.length*.6);
+  G.forEach(function(g,i){var cx=m.l+iw*(i+.5)/G.length,v=g.items.map(function(x){return x.v;});
+    out+='<text x="'+cx+'" y="'+(m.t-10)+'" text-anchor="middle" font-size="10.5" fill="'+C.muted+'">n='+v.length+'</text><text x="'+cx+'" y="'+(h-m.b+16)+'" text-anchor="middle" font-size="11.5">'+esc(g.label)+'</text>';
+    if(!v.length)return;
+    var q1=quantile(v,.25),md=quantile(v,.5),q3=quantile(v,.75),iqr=q3-q1,lo=Math.min.apply(null,v.filter(function(x){return x>=q1-1.5*iqr;})),hi=Math.max.apply(null,v.filter(function(x){return x<=q3+1.5*iqr;})),small=v.length<(o.small||8);
+    out+='<line x1="'+cx+'" x2="'+cx+'" y1="'+Y(lo)+'" y2="'+Y(hi)+'" stroke="'+C.muted+'"/><line x1="'+(cx-bw/4)+'" x2="'+(cx+bw/4)+'" y1="'+Y(lo)+'" y2="'+Y(lo)+'" stroke="'+C.muted+'"/><line x1="'+(cx-bw/4)+'" x2="'+(cx+bw/4)+'" y1="'+Y(hi)+'" y2="'+Y(hi)+'" stroke="'+C.muted+'"/>'
+      +'<rect x="'+(cx-bw/2)+'" y="'+Y(q3)+'" width="'+bw+'" height="'+Math.max(Y(q1)-Y(q3),1)+'" fill="'+(small?'#F1F3F0':C.light)+'" stroke="'+(small?C.grey:C.forest)+'" stroke-width="1.3" data-tip="'+esc(g.label+' | n='+v.length+' | Q1 '+num(q1)+' | median '+num(md)+' | Q3 '+num(q3)+' hari')+'"/>'
+      +'<line x1="'+(cx-bw/2)+'" x2="'+(cx+bw/2)+'" y1="'+Y(md)+'" y2="'+Y(md)+'" stroke="'+C.rust+'" stroke-width="2.4"/>';
+    g.items.forEach(function(it,k){var jit=(((k*9301+49297)%233280)/233280-.5)*bw*.62;out+='<circle cx="'+(cx+jit)+'" cy="'+Y(it.v)+'" r="2.3" fill="'+C.forest+'" opacity=".5" data-tip="'+esc(it.tip)+'"/>';});
+    if(o.bands&&g.band!=null&&(i===0||G[i-1].band!==g.band)){var j=i;while(j<G.length&&G[j].band===g.band)j++;var mid=m.l+iw*((i+j)/2)/G.length;out+='<text x="'+mid+'" y="'+(h-8)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+C.muted+'">'+esc(g.band)+'</text>';}
+  });
+  var ty=Y(o.target);out+='<line x1="'+m.l+'" x2="'+(w-m.r)+'" y1="'+ty+'" y2="'+ty+'" stroke="'+C.rust+'" stroke-dasharray="5 4" stroke-width="1.4"/><text x="'+(w-m.r+4)+'" y="'+(ty-2)+'" font-size="11" fill="'+C.rust+'">target</text><text x="'+(w-m.r+4)+'" y="'+(ty+11)+'" font-size="11" fill="'+C.rust+'">'+o.target+' hari</text>';
+  out+='<text transform="translate(13,'+(m.t+ih/2)+') rotate(-90)" text-anchor="middle" font-size="11.5" fill="'+C.muted+'">Lama proses (hari)</text>';
+  return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(o.aria||'grafik sebaran')+'">'+out+'</svg>';
+}
+
+/* ---------- komponen UI ---------- */
+function card(title,note,body){return '<div class="card"><h3>'+esc(title)+'</h3>'+(note?'<p class="note">'+note+'</p>':'')+body+'</div>';}
+function kpi(v,l,s,bad){return '<div class="kpi"><div class="v'+(bad?' bad':'')+'">'+v+'</div><div class="l">'+l+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';}
+function insight(t){return '<div class="insight"><b>Insight:</b> '+t+'</div>';}
+function download(name,text,mime){var b=new Blob(['﻿'+text],{type:mime||'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1500);}
+function toCSV(cols,rows){var q=function(v){v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};return [cols.map(function(c){return q(c.h);}).join(',')].concat(rows.map(function(r){return cols.map(function(c){return q(c.v(r));}).join(',');})).join('\n');}
+function toast(t){var x=$('#toast');x.textContent=t;x.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){x.style.display='none';},3500);}
+function dataTable(host,cols,getRows,opt){
+  var st={key:opt.key,dir:opt.dir||-1,page:0,size:opt.size||25,rows:[]};
+  function draw(){
+    var rows=getRows().slice(),c=cols.filter(function(c){return c.k===st.key;})[0];
+    if(c)rows.sort(function(a,b){var x=c.v(a),y=c.v(b);if(x==y)return 0;if(x==null)return 1;if(y==null)return -1;return (x>y?1:-1)*st.dir;});
+    st.rows=rows;var pages=Math.max(1,Math.ceil(rows.length/st.size));st.page=Math.min(st.page,pages-1);
+    var sl=rows.slice(st.page*st.size,(st.page+1)*st.size);
+    host.innerHTML='<div class="tw"><table><thead><tr>'+cols.map(function(c){return '<th data-k="'+c.k+'" class="'+(c.n?'num':'')+'">'+c.h+(st.key===c.k?(st.dir<0?' &#9660;':' &#9650;'):'')+'</th>';}).join('')+'</tr></thead><tbody>'
+      +(sl.length?sl.map(function(r){return '<tr>'+cols.map(function(c){return '<td class="'+(c.n?'num ':'')+(c.nw?'nw':'')+'">'+(c.f?c.f(r):esc(c.v(r)==null?'-':(c.n&&typeof c.v(r)==='number'?num(c.v(r),c.d||0):c.v(r))))+'</td>';}).join('')+'</tr>';}).join(''):'<tr><td colspan="'+cols.length+'">Tidak ada data untuk filter ini.</td></tr>')
+      +'</tbody></table></div><div class="pager"><button data-p="-1">Sebelumnya</button><span>'+(rows.length?(st.page*st.size+1)+'-'+Math.min(rows.length,(st.page+1)*st.size):'0')+' dari '+num(rows.length)+'</span><button data-p="1">Berikutnya</button></div>';
+    host.querySelectorAll('th').forEach(function(th){th.onclick=function(){var k=th.getAttribute('data-k');if(st.key===k)st.dir*=-1;else{st.key=k;st.dir=-1;}draw();};});
+    host.querySelectorAll('.pager button').forEach(function(b){b.onclick=function(){st.page=Math.max(0,Math.min(pages-1,st.page+ +b.getAttribute('data-p')));draw();};});
+  }
+  draw();return {redraw:function(){st.page=0;draw();},state:st};
+}
+
+/* ---------- tab: ringkasan ---------- */
+function tabRingkasan(root){
+  var A=subsF(),P=A.filter(function(s){return s.st==='P';}),D=A.filter(function(s){return s.st==='D';}),Q=A.filter(function(s){return s.st==='Q';}),sc=scopeOf(A),T=ST.target;
+  var med=median(vals(sc,'d')),within=sc.filter(function(s){return s.d<=T;}).length,d1=median(vals(sc,'d1'));
+  var ages=DATA.submissions.filter(function(s){return s.st==='Q'&&(ST.incNA||!s.na);}).map(ageOf),late=ages.filter(function(a){return a>T;}).length;
+  var h='<div class="grid kpis">'+kpi(num(A.length),'Naskah masuk','tahun '+ST.yFrom+' sampai '+ST.yTo)+kpi(num(P.length),'Terbit',num(pct(P.length,A.length),0)+'% dari naskah masuk')+kpi(num(D.length),'Ditolak',num(pct(D.length,A.length),0)+'% dari naskah masuk')+kpi(num(Q.length),'Masih berjalan','pada rentang tahun terpilih')
+   +kpi(med==null?'-':num(med,med%1?1:0),'Median lama proses (hari)','naskah masuk sampai terbit, '+num(sc.length)+' artikel',med>T)+kpi(sc.length?num(pct(within,sc.length),0)+'%':'-','Terbit dalam target '+T+' hari',num(within)+' dari '+num(sc.length)+' artikel',sc.length&&pct(within,sc.length)<50)
+   +kpi(num(d1),'Median sampai keputusan revisi pertama (hari)','artikel terbit yang tercatat lengkap')+kpi(num(late)+' dari '+num(ages.length),'Naskah berjalan melewati target','semua naskah berjalan, umur dihitung per '+refDate(),late>0)+'</div>';
+  var by=groupBy(sc,pubYear),yrs=keysAsc(by);
+  h+='<div class="grid two" style="margin-top:14px">';
+  h+=card('Persen artikel terbit dalam target, per tahun terbit','Artikel terbit yang tercatat lengkap. Garis putus-putus: 50%.',yrs.length?barChart({w:560,h:290,labels:yrs,sub:yrs.map(function(y){return 'n='+by[y].length;}),series:[{name:'% dalam target',color:C.forest,values:yrs.map(function(y){return pct(by[y].filter(function(s){return s.d<=T;}).length,by[y].length);})}],unit:'%',max:100,ref:{value:50,label:'50%'},aria:'Persen terbit dalam target per tahun terbit'}):'<p class="note">Belum ada data.</p>');
+  h+=card('Median lama proses per tahun terbit (hari)','Garis putus-putus: target '+T+' hari.',yrs.length?lineChart({w:560,h:290,labels:yrs,series:[{name:'Median',color:C.forest,labels:true,values:yrs.map(function(y){return median(vals(by[y],'d'));})}],unit:'',ref:{value:T,label:'target'},aria:'Median lama proses per tahun terbit'}):'<p class="note">Belum ada data.</p>');
+  var ys=keysAsc(groupBy(A,function(s){return s.y;})),g=groupBy(A,function(s){return s.y;});
+  h+='</div><div style="margin-top:14px">'+card('Status naskah per tahun masuk','Jumlah naskah menurut hasil akhir sampai tanggal data.',barChart({labels:ys,stacked:true,w:1000,series:[{name:'Terbit',color:C.forest,values:ys.map(function(y){return g[y].filter(function(s){return s.st==='P';}).length;})},{name:'Ditolak',color:C.rust,values:ys.map(function(y){return g[y].filter(function(s){return s.st==='D';}).length;})},{name:'Berjalan',color:C.grey,values:ys.map(function(y){return g[y].filter(function(s){return s.st==='Q';}).length;})}],aria:'Status naskah per tahun masuk'}))+'</div>';
+  h+=insight(sc.length?'dari '+num(sc.length)+' artikel terbit yang tercatat lengkap, median lama proses '+num(med,med%1?1:0)+' hari dan '+num(pct(within,sc.length),0)+'% terbit dalam '+T+' hari. Saat ini '+num(late)+' dari '+num(ages.length)+' naskah yang masih berjalan sudah melewati target.':'belum ada artikel terbit yang tercatat lengkap pada rentang tahun ini.');
+  root.innerHTML=h;
+}
+
+/* ---------- tab: lama proses ---------- */
+function tabLama(root){
+  var A=subsF(),sc=scopeOf(A),T=ST.target,h='';
+  var by=groupBy(sc,pubYear),yrs=keysAsc(by);
+  var mk=function(s){return {v:s.d,tip:'ID '+s.id+' | '+s.d+' hari'+(s.is?' | edisi '+s.is:'')};};
+  h+=card('Sebaran lama proses per tahun terbit','Satu titik = satu artikel. Kotak = separuh artikel di tengah; garis oranye = median.',yrs.length?boxChart({target:T,groups:yrs.map(function(y){return {label:y,items:by[y].map(mk)};}),aria:'Sebaran lama proses per tahun terbit'}):'<p class="note">Belum ada data.</p>');
+  var withIssue=sc.filter(function(s){return s.is;}),byI=groupBy(withIssue,function(s){return s.is+'|'+s.iy;}),iss=DATA.issues.filter(function(i){return byI[i.l+'|'+i.y];}).sort(function(a,b){return a.d<b.d?-1:1;});
+  h+='<div style="margin-top:14px">'+card('Sebaran lama proses per edisi','Urut menurut tanggal terbit edisi (volume.nomor). Kotak berwarna lebih muda: kurang dari 8 artikel.',iss.length?boxChart({target:T,w:1100,groups:iss.map(function(i){return {label:i.l,band:i.y,items:byI[i.l+'|'+i.y].map(mk)};}),bands:true,aria:'Sebaran lama proses per edisi'}):'<p class="note">Belum ada data edisi.</p>')+'</div>';
+  var ay=groupBy(A.filter(function(s){return s.y>=2019;}),function(s){return s.y;}),ky=keysAsc(ay);
+  var row=function(lbl,f){return '<tr><td>'+lbl+'</td>'+ky.map(function(y){var v=vals(ay[y].filter(function(s){return s.st==='P'&&(f!=='d'||s.sc===1)&&(ST.incNA||!s.na);}),f);return '<td class="num" title="n='+v.length+'">'+(v.length?num(median(v)):'-')+'</td>';}).join('')+'</tr>';};
+  h+='<div style="margin-top:14px">'+card('Median lama tiap tahap (hari), per tahun naskah masuk','Hanya artikel terbit. Sel kosong: data keputusan tidak tersedia. Arahkan kursor ke angka untuk melihat jumlah artikel.','<div class="tw"><table><thead><tr><th>Tahap</th>'+ky.map(function(y){return '<th class="num">'+y+'</th>';}).join('')+'</tr></thead><tbody>'
+    +row('Naskah masuk sampai keputusan revisi pertama','d1')+row('Diterima (Accept) sampai dikirim ke produksi','d2')+row('Dikirim ke produksi sampai terbit','d3')+row('Naskah masuk sampai dikirim ke produksi','dp')+row('Naskah masuk sampai terbit (total)','d')+'</tbody></table></div>')+'</div>';
+  var med=median(vals(sc,'d')),q3=quantile(vals(sc,'d'),.75);
+  h+=insight(sc.length?'median lama proses '+num(med,med%1?1:0)+' hari, dan seperempat artikel terlama memerlukan '+num(q3)+' hari atau lebih. '+num(pct(sc.filter(function(s){return s.d<=T;}).length,sc.length),0)+'% artikel terbit dalam target '+T+' hari. Median per edisi kurang stabil bila jumlah artikelnya sedikit.':'belum ada data pada rentang tahun ini.');
+  root.innerHTML=h;
+}
+
+/* ---------- tab: naskah berjalan ---------- */
+function tabBerjalan(root){
+  var Q=DATA.submissions.filter(function(s){return s.st==='Q'&&(ST.incNA||!s.na);}),T=ST.target;
+  Q.forEach(function(s){s._age=ageOf(s);s._since=s.ld?dayDiff(s.ld,refDate()):null;});
+  var late=Q.filter(function(s){return s._age>T;}).length,mid=Q.filter(function(s){return s._age>.75*T&&s._age<=T;}).length;
+  var h='<div class="grid kpis">'+kpi(num(Q.length),'Naskah berjalan','semua tahun masuk')+kpi(num(late),'Melewati target '+T+' hari',num(pct(late,Q.length),0)+'%',late>0)+kpi(num(mid),'Mendekati target','umur 75% sampai 100% target')+kpi(num(median(Q.map(function(s){return s._age;}))),'Median umur (hari)','sejak naskah masuk')+'</div>';
+  var bk=[[0,90,'0-90'],[91,180,'91-180'],[181,270,'181-270'],[271,360,'271-360'],[361,9999,'lebih dari 360']];
+  var stages=[1,3,4,5].filter(function(g){return Q.some(function(s){return s.sg===g;});}),cols=[C.grey,C.moss,C.forest,C.amber];
+  h+='<div style="margin-top:14px">'+card('Umur naskah berjalan menurut tahap','Jumlah naskah per rentang umur (hari sejak naskah masuk).',barChart({labels:bk.map(function(b){return b[2];}),stacked:true,w:900,h:240,series:stages.map(function(g,i){return {name:STG[g],color:cols[i%4],values:bk.map(function(b){return Q.filter(function(s){return s.sg===g&&s._age>=b[0]&&s._age<=b[1];}).length;})};}),aria:'Umur naskah berjalan menurut tahap'}))+'</div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Daftar naskah berjalan</h3><p class="note">Daftar ini selalu memuat semua naskah berjalan, tidak mengikuti filter tahun. Klik judul kolom untuk mengurutkan.</p><div class="bar"><input type="search" id="qs" placeholder="Cari ID atau judul" size="26"><select id="qg"><option value="">Semua tahap</option>'+stages.map(function(g){return '<option value="'+g+'">'+STG[g]+'</option>';}).join('')+'</select><select id="qst"><option value="">Semua status</option><option value="late">Melewati target</option><option value="mid">Mendekati target</option><option value="ok">Dalam target</option></select><button id="qx">Unduh CSV</button></div><div id="qt"></div></div>';
+  root.innerHTML=h;
+  var state=function(s){return s._age>T?'late':s._age>.75*T?'mid':'ok';};
+  var cols2=[{k:'id',h:'ID',v:function(s){return s.id;}},{k:'t',h:'Judul',v:function(s){return s.t||'';},f:function(s){return esc(s.t||'(judul tidak disertakan)');}},{k:'sd',h:'Masuk',nw:1,v:function(s){return s.sd;}},
+    {k:'age',h:'Umur (hari)',n:1,v:function(s){return s._age;}},{k:'sg',h:'Tahap',v:function(s){return STG[s.sg]||'-';}},{k:'le',h:'Keputusan terakhir',v:function(s){return s.le?EVL[s.le]+' ('+s.ld+')':'-';}},
+    {k:'since',h:'Hari sejak keputusan',n:1,v:function(s){return s._since;}},{k:'la',h:'Aktivitas OJS',nw:1,v:function(s){return s.la;}},
+    {k:'q',h:'Status',v:function(s){return s._age;},f:function(s){var x=state(s);return '<span class="badge '+(x==='late'?'b-bad':x==='mid'?'b-mid':'b-ok')+'">'+(x==='late'?'Lewat target':x==='mid'?'Mendekati':'Dalam target')+'</span>';}}];
+  var tb=dataTable($('#qt'),cols2,function(){var q=$('#qs').value.trim().toLowerCase(),g=$('#qg').value,z=$('#qst').value;return Q.filter(function(s){return (!q||String(s.id).indexOf(q)>=0||(s.t||'').toLowerCase().indexOf(q)>=0)&&(!g||String(s.sg)===g)&&(!z||state(s)===z);});},{key:'age',dir:-1,size:20});
+  ['qs','qg','qst'].forEach(function(i){$('#'+i).oninput=tb.redraw;$('#'+i).onchange=tb.redraw;});
+  $('#qx').onclick=function(){download('naskah_berjalan.csv',toCSV(cols2.map(function(c){return {h:c.h,v:c.k==='q'?function(s){return state(s);}:c.v};}),tb.state.rows));};
+  root.insertAdjacentHTML('beforeend',insight(Q.length?num(late)+' dari '+num(Q.length)+' naskah berjalan sudah melewati target '+T+' hari, dan '+num(mid)+' naskah mendekati target. Kolom "Hari sejak keputusan" menunjukkan sudah berapa lama naskah menunggu setelah keputusan editor terakhir.':'tidak ada naskah berjalan pada data ini.'));
+}
+
+/* ---------- tab: review dan penolakan ---------- */
+function tabReview(root){
+  var A=subsF(),h='',R=DATA.reviews.filter(function(r){return r[0]>=ST.yFrom&&r[0]<=ST.yTo;}),gy=groupBy(R,function(r){return r[0];}),ky=keysAsc(gy);
+  var rate=function(y,st){return pct(gy[y].filter(function(r){return r[1]===st;}).length,gy[y].length);};
+  h+='<div class="grid two">'+card('Penugasan reviewer yang bermasalah, per tahun naskah masuk (%)','Status penugasan saat ini. Data hanya ada untuk sebagian naskah (lihat jumlah penugasan di bawah tiap tahun).',ky.length?lineChart({labels:ky,w:560,h:290,series:[{name:'Tidak merespons undangan',color:C.rust,labels:true,values:ky.map(function(y){return rate(y,'response_overdue');})},{name:'Review lewat batas waktu',color:C.grey,values:ky.map(function(y){return rate(y,'review_overdue');})}],unit:'%',aria:'Penugasan reviewer bermasalah'})+'<div class="note" style="margin-top:6px">Jumlah penugasan: '+ky.map(function(y){return y+': '+gy[y].length;}).join(' | ')+'</div>':'<p class="note">Belum ada data penugasan reviewer.</p>');
+  var dec=A.filter(function(s){return s.st==='P'||s.st==='D';}),gd=groupBy(dec,function(s){return s.y;}),kd=keysAsc(gd);
+  h+=card('Persen ditolak dari naskah yang sudah diputuskan, per tahun naskah masuk','Naskah berjalan tidak dihitung.',kd.length?barChart({w:560,h:290,labels:kd,sub:kd.map(function(y){return 'n='+gd[y].length;}),series:[{name:'% ditolak',color:C.rust,values:kd.map(function(y){return pct(gd[y].filter(function(s){return s.st==='D';}).length,gd[y].length);})}],unit:'%',max:100,aria:'Persen ditolak per tahun'}):'<p class="note">Belum ada data.</p>')+'</div>';
+  var D=A.filter(function(s){return s.st==='D';}),gs=groupBy(D,function(s){return s.y;}),ks=keysAsc(gs);
+  h+='<div style="margin-top:14px">'+card('Penolakan menurut tahap, per tahun naskah masuk','Jumlah naskah ditolak. "Tahap tidak tercatat" untuk naskah ditolak tanpa data keputusan.',barChart({labels:ks,stacked:true,w:1000,h:250,series:[{name:'Penyaringan awal',color:C.rust,values:ks.map(function(y){return gs[y].filter(function(s){return s.ds===1;}).length;})},{name:'Setelah review',color:C.amber,values:ks.map(function(y){return gs[y].filter(function(s){return s.ds===3;}).length;})},{name:'Tahap tidak tercatat',color:C.grey,values:ks.map(function(y){return gs[y].filter(function(s){return s.ds==null;}).length;})}],aria:'Penolakan menurut tahap'}))+'</div>';
+  var d1=vals(D.filter(function(s){return s.ds===1;}),'dd'),d3=vals(D.filter(function(s){return s.ds===3;}),'dd');
+  h+='<div style="margin-top:14px">'+card('Lama sampai ditolak (hari)','','<div class="tw"><table><thead><tr><th>Tahap penolakan</th><th class="num">Jumlah naskah</th><th class="num">Median (hari)</th><th class="num">Separuh naskah di antara (hari)</th></tr></thead><tbody>'
+    +[['Penyaringan awal',d1],['Setelah review',d3]].map(function(r){return '<tr><td>'+r[0]+'</td><td class="num">'+num(r[1].length)+'</td><td class="num">'+num(median(r[1]))+'</td><td class="num">'+(r[1].length?num(quantile(r[1],.25))+' sampai '+num(quantile(r[1],.75)):'-')+'</td></tr>';}).join('')+'</tbody></table></div>')+'</div>';
+  var lastY=ky[ky.length-1];
+  h+=insight((lastY?'pada '+lastY+', '+num(rate(lastY,'response_overdue'),0)+'% penugasan reviewer tidak direspons. Data penugasan hanya ada untuk sebagian naskah, jadi baca bersama jumlah penugasan per tahun. ':'')+(d1.length?'Penolakan di penyaringan awal memerlukan median '+num(median(d1))+' hari, dan penolakan setelah review median '+num(median(d3))+' hari.':''));
+  root.innerHTML=h;
+}
+
+/* ---------- tab: beban editor ---------- */
+function tabBeban(root){
+  var A=subsF(),ids={};A.forEach(function(s){ids[s.id]=1;});
+  var Dc=DATA.decisions.filter(function(d){return ids[d[0]];}),cnt={};Dc.forEach(function(d){if(d[3])cnt[d[3]]=(cnt[d[3]]||0)+1;});
+  var top=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}),main=top.slice(0,5),h='';
+  var gy=groupBy(Dc,function(d){return d[1].slice(0,4);}),ky=keysAsc(gy),pal=[C.forest,C.moss,C.amber,C.rust,'#3C6E8F'];
+  h+='<div class="warn"><b>Baca dengan hati-hati.</b> Angka di halaman ini menunjukkan sebaran keputusan, bukan penilaian kinerja individu. Satu akun bisa memegang beberapa peran, dan jumlah naskah tiap editor berbeda jauh.</div>';
+  h+=card('Keputusan editorial per akun, per tahun keputusan','Keputusan yang dihitung: dikirim ke review, diminta revisi, review ulang, diterima, dikirim ke produksi, ditolak. Akun disamarkan (E01 dan seterusnya).',barChart({labels:ky,stacked:true,w:1000,h:270,series:main.map(function(k,i){return {name:k,color:pal[i],values:ky.map(function(y){return gy[y].filter(function(d){return d[3]===k;}).length;})};}).concat([{name:'Akun lain',color:C.grey,values:ky.map(function(y){return gy[y].filter(function(d){return main.indexOf(d[3])<0;}).length;})}]),aria:'Keputusan per akun per tahun'}));
+  var sc=A.filter(function(s){return s.d1!=null&&s.st==='P'&&s.sc===1;}),g1=groupBy(sc,function(s){return s.e1;}),tot1=sc.length;
+  var rows=top.map(function(k){return {k:k,n:cnt[k],f1:(g1[k]||[]).length,m1:median(vals(g1[k]||[],'d1')),roles:(DATA.editors[k]||{}).roles||''};});
+  h+='<div style="margin-top:14px">'+card('Ringkasan per akun','Median sampai keputusan revisi pertama dihitung untuk artikel terbit yang tercatat lengkap. Akun dengan kurang dari 5 artikel diberi tanda "n kecil".','<div class="tw"><table><thead><tr><th>Akun</th><th class="num">Keputusan</th><th class="num">Keputusan revisi pertama (artikel)</th><th class="num">Porsi</th><th class="num">Median ke revisi pertama (hari)</th><th>Catatan</th></tr></thead><tbody>'
+    +rows.map(function(r){return '<tr><td>'+esc((DATA.editors[r.k]&&DATA.editors[r.k].name)||r.k)+'</td><td class="num">'+num(r.n)+'</td><td class="num">'+num(r.f1)+'</td><td class="num">'+(tot1?num(pct(r.f1,tot1),0)+'%':'-')+'</td><td class="num">'+(r.f1?num(r.m1):'-')+'</td><td>'+(r.f1&&r.f1<5?'<span class="badge b-n">n kecil</span>':'')+'</td></tr>';}).join('')+'</tbody></table></div>')+'</div>';
+  var lead=rows.filter(function(r){return r.f1;}).sort(function(a,b){return b.f1-a.f1;})[0];
+  h+=insight(lead&&tot1?'akun '+esc(lead.k)+' mengambil '+num(pct(lead.f1,tot1),0)+'% keputusan revisi pertama ('+num(lead.f1)+' dari '+num(tot1)+' artikel). Perbandingan waktu antar akun perlu hati-hati karena periode penanganan dan jumlah naskah berbeda.':'belum ada data keputusan pada rentang tahun ini.');
+  root.innerHTML=h;
+}
+
+/* ---------- tab: kualitas data ---------- */
+function tabKualitas(root){
+  var A=DATA.submissions.filter(function(s){return !s.na;}),NA=DATA.submissions.filter(function(s){return s.na;}),gna=groupBy(NA,function(s){return s.y;}),gy=groupBy(A,function(s){return s.y;}),ky=keysAsc(groupBy(DATA.submissions,function(s){return s.y;})),h='';
+  var cnt=function(a,f){return a.filter(function(s){return s.q.indexOf(f)>=0;}).length;};
+  h+=card('Kelengkapan data per tahun naskah masuk','"Lama proses terhitung": artikel terbit yang punya keputusan dikirim ke produksi dan tanggal terbit. Tanda kualitas dijelaskan di bawah tabel.','<div class="tw"><table><thead><tr><th>Tahun</th><th class="num">Naskah</th><th class="num">Terbit</th><th class="num">Lama proses terhitung</th><th class="num">%</th><th class="num">Tanpa keputusan</th><th class="num">Terbit tanpa tanggal</th><th class="num">Tanggal janggal</th><th class="num">Decline pada terbit</th><th class="num">Kode tanpa label</th><th class="num">Bukan artikel</th></tr></thead><tbody>'
+    +ky.map(function(y){var a=gy[y]||[],p=a.filter(function(s){return s.st==='P';}),sc=p.filter(function(s){return s.sc===1&&s.d!=null;});return '<tr><td>'+y+'</td><td class="num">'+num(a.length)+'</td><td class="num">'+num(p.length)+'</td><td class="num">'+num(sc.length)+'</td><td class="num">'+(p.length?num(pct(sc.length,p.length),0)+'%':'-')+'</td><td class="num">'+num(cnt(a,'n'))+'</td><td class="num">'+num(cnt(a,'w'))+'</td><td class="num">'+num(cnt(a,'o'))+'</td><td class="num">'+num(cnt(a,'s'))+'</td><td class="num">'+num(cnt(a,'b'))+'</td><td class="num">'+num((gna[y]||[]).length)+'</td></tr>';}).join('')+'</tbody></table></div>');
+  h+='<div class="card" style="margin-top:14px"><h3>Arti tanda kualitas</h3><ul class="steps"><li><b>Tanpa keputusan</b>: tidak ada satu pun keputusan editor tercatat untuk naskah itu.</li><li><b>Terbit tanpa tanggal</b>: status terbit, tetapi tanggal terbit kosong.</li><li><b>Urutan tanggal janggal</b>: tanggal terbit lebih awal dari tanggal dikirim ke produksi atau urutan keputusan terbalik.</li><li><b>Decline pada artikel terbit</b>: ada keputusan "Decline" di penyaringan awal pada artikel yang akhirnya terbit. Artinya belum dikonfirmasi, jadi tidak dipakai sebagai penolakan.</li><li><b>Kode tanpa label</b>: kode keputusan tanpa label dari OJS. Artinya belum dikonfirmasi dan tidak dipakai.</li><li><b>Bukan artikel</b>: item "Front-matter" dan "Back-matter" yang tercatat OJS sebagai naskah. Item ini dikeluarkan dari semua hitungan, kecuali kotak "sertakan front/back matter" di bagian atas dicentang.</li></ul></div>';
+  var A0=A;var mn=A.reduce(function(a,s){return s.sd<a?s.sd:a;},'9999'),mx=A.reduce(function(a,s){return s.sd>a?s.sd:a;},'0000');
+  h+=insight('data mencakup naskah yang masuk '+mn+' sampai '+mx+'. Lama proses hanya bisa dihitung untuk naskah dengan keputusan tercatat, dan kelengkapannya meningkat dari tahun ke tahun. Naskah sebelum 2019 hampir tidak memiliki data keputusan.');
+  root.innerHTML=h;
+}
+
+/* ---------- tab: data dan pembaruan ---------- */
+function tabData(root){
+  var h='<div class="grid two">'+card('Cara memperbarui data','Ada dua cara. Keduanya tidak mengubah apa pun di OJS (hanya membaca).','<ol class="steps"><li><b>Perbarui lewat skrip</b> (disarankan, mengambil data terbaru dari OJS): atur variabel <code>OJS_API_KEY</code>, lalu jalankan <code>python refresh_dashboard.py</code> di folder <code>dashboard</code>. Berkas HTML ini dibuat ulang dengan data terbaru.</li><li><b>Muat data baru di halaman ini</b>: klik <i>Muat data baru</i> lalu pilih berkas <code>dashboard_data.json</code> hasil skrip. Data diganti sementara, dan kembali ke data bawaan bila halaman dimuat ulang.</li><li>Tanpa akses OJS, <code>python refresh_dashboard.py --offline</code> membangun ulang dashboard dari tabel yang sudah ada.</li></ol>')
+   +card('Informasi data','','<table><tbody><tr><td>Sumber</td><td>'+esc(DATA.meta.source)+'</td></tr><tr><td>Data per tanggal</td><td>'+esc(DATA.meta.as_of)+'</td></tr><tr><td>Dibuat</td><td>'+esc(DATA.meta.generated)+'</td></tr><tr><td>Jumlah naskah</td><td>'+num(DATA.meta.n_submissions)+'</td></tr><tr><td>Keputusan editorial</td><td>'+num(DATA.decisions.length)+'</td></tr><tr><td>Penugasan reviewer</td><td>'+num(DATA.reviews.length)+'</td></tr><tr><td>Edisi</td><td>'+num(DATA.issues.length)+'</td></tr><tr><td>Item bukan artikel (front/back matter)</td><td>'+num(DATA.meta.n_non_article||0)+'</td></tr><tr><td>Judul naskah disertakan</td><td>'+(DATA.meta.titles?'ya':'tidak')+'</td></tr><tr><td>Nama akun editor</td><td>'+(DATA.meta.names?'ya':'disamarkan (E01 dan seterusnya)')+'</td></tr></tbody></table>')+'</div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Semua naskah</h3><p class="note">Mengikuti filter tahun naskah masuk di bagian atas.</p><div class="bar"><input type="search" id="ds" placeholder="Cari ID atau judul" size="26"><select id="dst"><option value="">Semua status</option><option value="P">Terbit</option><option value="D">Ditolak</option><option value="Q">Berjalan</option></select><button id="dx">Unduh CSV</button></div><div id="dt"></div></div>';
+  root.innerHTML=h;
+  var cols=[{k:'id',h:'ID',v:function(s){return s.id;}},{k:'t',h:'Judul',v:function(s){return s.t||'';},f:function(s){return esc(s.t||'');}},{k:'sd',h:'Masuk',nw:1,v:function(s){return s.sd;}},{k:'st',h:'Status',v:function(s){return STAT[s.st];}},{k:'pd',h:'Terbit',nw:1,v:function(s){return s.pd;}},{k:'is',h:'Edisi',nw:1,v:function(s){return s.is;}},{k:'d',h:'Lama proses (hari)',n:1,v:function(s){return s.d;}},{k:'d1',h:'Ke revisi pertama (hari)',n:1,v:function(s){return s.d1;}},{k:'q',h:'Tanda kualitas',v:function(s){return flagTxt(s);}}];
+  var tb=dataTable($('#dt'),cols,function(){var q=$('#ds').value.trim().toLowerCase(),z=$('#dst').value;return subsF().filter(function(s){return (!q||String(s.id).indexOf(q)>=0||(s.t||'').toLowerCase().indexOf(q)>=0)&&(!z||s.st===z);});},{key:'sd',dir:-1,size:25});
+  ['ds','dst'].forEach(function(i){$('#'+i).oninput=tb.redraw;$('#'+i).onchange=tb.redraw;});
+  $('#dx').onclick=function(){download('naskah_terfilter.csv',toCSV(cols,tb.state.rows));};
+}
+
+/* ---------- rute & render ---------- */
+var RENDER={ringkasan:tabRingkasan,lama:tabLama,berjalan:tabBerjalan,review:tabReview,beban:tabBeban,kualitas:tabKualitas,data:tabData};
+function nav(){$('#tabs').innerHTML=TABS.map(function(t){return '<a data-t="'+t[0]+'" class="'+(ST.tab===t[0]?'on':'')+'">'+t[1]+'</a>';}).join('');$('#tabs').querySelectorAll('a').forEach(function(a){a.onclick=function(){ST.tab=a.getAttribute('data-t');history.replaceState(null,'','#'+ST.tab);render();};});}
+function render(){
+  if(!DATA){$('#view').innerHTML='<div class="warn">Data belum dimuat. Klik <b>Muat data baru</b> dan pilih berkas <code>dashboard_data.json</code>.</div>';return;}
+  nav();$('#fnote').textContent=ST.tab==='berjalan'?'Tab ini memuat semua naskah berjalan.':'';
+  RENDER[ST.tab]($('#view'));
+}
+function readFilters(){ST.yFrom=+$('#yFrom').value;ST.yTo=+$('#yTo').value;if(ST.yFrom>ST.yTo){var t=ST.yFrom;ST.yFrom=ST.yTo;ST.yTo=t;$('#yFrom').value=ST.yFrom;$('#yTo').value=ST.yTo;}ST.target=Math.max(30,+$('#target').value||180);ST.age=$('#ageRef').value;ST.incNA=$('#incNA').checked;render();}
+['yFrom','yTo','target','ageRef','incNA'].forEach(function(i){$('#'+i).onchange=readFilters;});
+$('#btnLoad').onclick=function(){$('#file').click();};
+$('#file').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{setData(JSON.parse(r.result));render();toast('Data dimuat: '+num(DATA.submissions.length)+' naskah, per '+DATA.meta.as_of);}catch(x){toast('Gagal memuat: '+x.message);}};r.readAsText(f);e.target.value='';};
+$('#btnSave').onclick=function(){if(DATA)download('dashboard_data.json',JSON.stringify(DATA),'application/json');};
+var h0=(location.hash||'').replace('#','');if(RENDER[h0])ST.tab=h0;
+window.OJSDASH={load:function(o){setData(o);render();}};
+if(DATA0){setData(DATA0);}
+render();
+})();
+</script>
+</body>
+</html>

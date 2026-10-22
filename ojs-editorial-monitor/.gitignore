@@ -1,0 +1,31 @@
+# Data hasil ekstraksi dan analisis (memuat data pribadi): tidak untuk git
+raw/
+out/
+clean/
+analysis/
+
+# Keluaran dashboard (memuat judul naskah dan statistik)
+dashboard/dashboard_data.json
+dashboard/Monitoring_Dashboard.html
+dashboard/public/
+dashboard/shots/
+
+# Konfigurasi lokal dan kredensial
+journal.local.json
+.env
+.env.*
+*.pem
+*.key
+credentials*
+secrets.*
+
+# Berkas kantor, gambar, cache
+~$*
+*.pptx
+*.png
+*.PNG
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+desktop.ini

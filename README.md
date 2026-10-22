@@ -14,6 +14,7 @@ Projects in machine learning, data engineering, statistics, databases and busine
 | [data-cleaning-missing-dirty-outlier](data-cleaning-missing-dirty-outlier) | Missing, dirty and outlier data (team) | Python |
 | [database-design-oracle-sql-mongodb](database-design-oracle-sql-mongodb) | Relational and NoSQL design | Oracle SQL, MongoDB |
 | [r-data-preparation-case-study](r-data-preparation-case-study) | Data preparation and analysis of waste data | R Markdown |
+| [ojs-editorial-monitor](ojs-editorial-monitor) | Extraction, cleaning and monitoring dashboard for a journal's editorial workflow (no data included) | Python, OJS REST API |
 | [business-analytics-case-studies](business-analytics-case-studies) | Seven 2023 business cases with Tableau dashboards | Spreadsheet, SQL, Tableau |
 
 The master's thesis (multitask RGB-D tree segmentation and diameter estimation) has its own repository: https://github.com/anurulhamzah/Tree-Segmentation-and-Diameter-Estimation
